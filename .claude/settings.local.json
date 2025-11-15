@@ -8,7 +8,9 @@
       "mcp__kodegen__fs_edit_block",
       "mcp__kodegen__terminal_start_command",
       "mcp__kodegen__terminal_read_output",
-      "Bash(just dep-local:*)"
+      "Bash(just dep-local:*)",
+      "Bash(kodegen-filesystem:*)",
+      "Bash(RUST_LOG=debug kodegen-filesystem:*)"
     ],
     "deny": [],
     "ask": []
