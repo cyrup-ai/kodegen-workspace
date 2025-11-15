@@ -10,33 +10,33 @@ check:
     
     # List of all Rust projects in the workspace
     projects=(
-        "packages/cylo"
-        "packages/kodegen"
-        "packages/kodegen-bundler-autoconfig"
-        "packages/kodegen-bundler-release"
-        "packages/kodegen-bundler-sign"
-        "packages/kodegen-candle-agent"
-        "packages/kodegen-claude-agent"
-        "packages/kodegen-mcp-client"
-        "packages/kodegen-mcp-schema"
-        "packages/kodegen-mcp-tool"
-        "packages/kodegen-server-http"
-        "packages/kodegen-simd"
-        "packages/kodegen-tools-browser"
-        "packages/kodegen-tools-citescrape"
-        "packages/kodegen-tools-config"
-        "packages/kodegen-tools-database"
-        "packages/kodegen-tools-filesystem"
-        "packages/kodegen-tools-git"
-        "packages/kodegen-tools-github"
-        "packages/kodegen-tools-introspection"
-        "packages/kodegen-tools-process"
-        "packages/kodegen-tools-prompt"
-        "packages/kodegen-tools-reasoner"
-        "packages/kodegen-tools-sequential-thinking"
-        "packages/kodegen-tools-terminal"
-        "packages/kodegen-utils"
-        "packages/kodegend"
+        "cylo"
+        "kodegen"
+        "kodegen-bundler-autoconfig"
+        "kodegen-bundler-release"
+        "kodegen-bundler-sign"
+        "kodegen-candle-agent"
+        "kodegen-claude-agent"
+        "kodegen-mcp-client"
+        "kodegen-mcp-schema"
+        "kodegen-mcp-tool"
+        "kodegen-server-http"
+        "kodegen-simd"
+        "kodegen-tools-browser"
+        "kodegen-tools-citescrape"
+        "kodegen-tools-config"
+        "kodegen-tools-database"
+        "kodegen-tools-filesystem"
+        "kodegen-tools-git"
+        "kodegen-tools-github"
+        "kodegen-tools-introspection"
+        "kodegen-tools-process"
+        "kodegen-tools-prompt"
+        "kodegen-tools-reasoner"
+        "kodegen-tools-sequential-thinking"
+        "kodegen-tools-terminal"
+        "kodegen-utils"
+        "kodegend"
     )
     
     echo "Running cargo check and clippy on all projects..."
@@ -47,7 +47,7 @@ check:
     succeeded_projects=()
     
     for project in "${projects[@]}"; do
-        if [ -d "$project" ] && [ -f "$project/Cargo.toml" ]; then
+        if [ -d "packages/$project" ] && [ -f "packages/$project/Cargo.toml" ]; then
             echo "Checking $project..."
             output_file="task/${project}.txt"
             
@@ -55,11 +55,11 @@ check:
             rm -f "$output_file"
             
             # Capture cargo check output (treat warnings as errors)
-            check_output=$(cd "$project" && RUSTFLAGS="-D warnings" cargo check 2>&1)
+            check_output=$(cd "packages/$project" && RUSTFLAGS="-D warnings" cargo check 2>&1)
             check_exit=$?
             
             # Capture cargo clippy output (treat warnings as errors)
-            clippy_output=$(cd "$project" && cargo clippy -- -D warnings 2>&1)
+            clippy_output=$(cd "packages/$project" && cargo clippy -- -D warnings 2>&1)
             clippy_exit=$?
             
             # Determine status
