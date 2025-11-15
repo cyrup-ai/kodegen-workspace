@@ -188,6 +188,13 @@ dep-local:
         rel = os.path.relpath(to_path, from_path)
         return rel.replace(os.sep, "/")
 
+    def to_major_minor(version: str) -> str:
+        """Convert version string to major.minor format (e.g., '0.2.0' -> '0.2')."""
+        parts = version.split('.')
+        if len(parts) >= 2:
+            return f"{parts[0]}.{parts[1]}"
+        return version
+
     def process_file(cargo_toml: Path, packages: Dict[str, Tuple[Path, str]], pkg_path: Path) -> bool:
         """Process a Cargo.toml file. Returns True if modified."""
         with open(cargo_toml, 'r') as f:
@@ -232,11 +239,11 @@ dep-local:
             # Extract all attributes
             attrs_parts = []
 
-            # Get version (existing or from target package)
+            # Get version (existing or from target package) and convert to major.minor
             if has_version:
-                version = has_version.group(1)
+                version = to_major_minor(has_version.group(1))
             else:
-                version = dep_version
+                version = to_major_minor(dep_version)
                 modified = True
 
             attrs_parts.append(f'version = "{version}"')
@@ -332,6 +339,13 @@ dep-published:
 
         return packages
 
+    def to_major_minor(version: str) -> str:
+        """Convert version string to major.minor format (e.g., '0.2.0' -> '0.2')."""
+        parts = version.split('.')
+        if len(parts) >= 2:
+            return f"{parts[0]}.{parts[1]}"
+        return version
+
     def process_file(cargo_toml: Path, packages: Dict[str, Tuple[Path, str]]) -> bool:
         """Process a Cargo.toml file. Returns True if modified."""
         with open(cargo_toml, 'r') as f:
@@ -375,11 +389,11 @@ dep-published:
             # Remove path, keep version and other attributes
             attrs_parts = []
 
-            # Get version (existing or from target package)
+            # Get version (existing or from target package) and convert to major.minor
             if has_version:
-                version = has_version.group(1)
+                version = to_major_minor(has_version.group(1))
             else:
-                version = dep_version
+                version = to_major_minor(dep_version)
                 modified = True
 
             attrs_parts.append(f'version = "{version}"')
