@@ -1,0 +1,65 @@
+[workspace]
+resolver = "3"
+members = [
+    "packages/cylo",
+    "packages/kodegen",
+    "packages/kodegen-bundler-autoconfig",
+    "packages/kodegen-bundler-bundle",
+    "packages/kodegen-bundler-release",
+    "packages/kodegen-bundler-sign",
+    "packages/kodegen-candle-agent",
+    "packages/kodegen-claude-agent",
+    "packages/kodegen-config-manager",
+    "packages/kodegen-mcp-client",
+    "packages/kodegen-mcp-schema",
+    "packages/kodegen-mcp-tool",
+    "packages/kodegen-server-http",
+    "packages/kodegen-simd",
+    "packages/kodegen-tools-browser",
+    "packages/kodegen-tools-citescrape",
+    "packages/kodegen-tools-config",
+    "packages/kodegen-tools-database",
+    "packages/kodegen-tools-filesystem",
+    "packages/kodegen-tools-git",
+    "packages/kodegen-tools-github",
+    "packages/kodegen-tools-introspection",
+    "packages/kodegen-tools-process",
+    "packages/kodegen-tools-prompt",
+    "packages/kodegen-tools-reasoner",
+    "packages/kodegen-tools-sequential-thinking",
+    "packages/kodegen-tools-terminal",
+    "packages/kodegen-utils",
+    "packages/kodegend",
+]
+
+# Patch all kodegen packages to use local workspace versions during development
+# This allows packages to reference each other by version (for publishing)
+# while using local sources during development
+[patch.crates-io]
+cylo = { path = "packages/cylo" }
+kodegen_bundler_autoconfig = { path = "packages/kodegen-bundler-autoconfig" }
+kodegen_bundler_bundle = { path = "packages/kodegen-bundler-bundle" }
+kodegen_bundler_release = { path = "packages/kodegen-bundler-release" }
+kodegen_bundler_sign = { path = "packages/kodegen-bundler-sign" }
+kodegen_candle_agent = { path = "packages/kodegen-candle-agent" }
+kodegen_claude_agent = { path = "packages/kodegen-claude-agent" }
+kodegen_config_manager = { path = "packages/kodegen-config-manager" }
+kodegen_mcp_client = { path = "packages/kodegen-mcp-client" }
+kodegen_mcp_schema = { path = "packages/kodegen-mcp-schema" }
+kodegen_mcp_tool = { path = "packages/kodegen-mcp-tool" }
+kodegen_server_http = { path = "packages/kodegen-server-http" }
+kodegen_simd = { path = "packages/kodegen-simd" }
+kodegen_tools_browser = { path = "packages/kodegen-tools-browser" }
+kodegen_tools_citescrape = { path = "packages/kodegen-tools-citescrape" }
+kodegen_tools_config = { path = "packages/kodegen-tools-config" }
+kodegen_tools_database = { path = "packages/kodegen-tools-database" }
+kodegen_tools_filesystem = { path = "packages/kodegen-tools-filesystem" }
+kodegen_tools_git = { path = "packages/kodegen-tools-git" }
+kodegen_tools_github = { path = "packages/kodegen-tools-github" }
+kodegen_tools_introspection = { path = "packages/kodegen-tools-introspection" }
+kodegen_tools_process = { path = "packages/kodegen-tools-process" }
+kodegen_tools_prompt = { path = "packages/kodegen-tools-prompt" }
+kodegen_tools_reasoner = { path = "packages/kodegen-tools-reasoner" }
+kodegen_tools_sequential_thinking = { path = "packages/kodegen-tools-sequential-thinking" }
+kodegen_tools_terminal = { path = "packages/kodegen-tools-terminal" }
+kodegen_utils = { path = "packages/kodegen-utils" }

@@ -24,7 +24,6 @@ Pipfile.lock
 ./goose/*
 ./.crates-lsp/*
 **/.crates-lsp/*
-**/.claude/*
 task/*
 .crates-lsp/*
 *.code-workspace
@@ -185,7 +184,6 @@ doc/
 .lapce/
 .qodo
 .koolaid
-**/.claude/
 **/CLAUDE.md
 **/TODO.md
 

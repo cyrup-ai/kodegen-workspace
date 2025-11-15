@@ -1,3 +1,13 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "kodegen": {
+      "command": "kodegen",
+      "args": [
+        "--no-tls",
+        "--toolset",
+        "~/.config/kodegen/core.json"
+      ],
+      "env": {}
+    }
+  }
 }

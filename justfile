@@ -155,23 +155,23 @@ mcp:
     @pkill -f kodegen-sequential-thinking || true
     @pkill -f kodegen-terminal || true
     @pkill -f kodegen-candle-agent || true
-    @rm -rf /Users/davidmaple/kodegen-workspace/tmp/mcp
-    @mkdir -p /Users/davidmaple/kodegen-workspace/tmp/mcp
+    @rm -rf ./packages/tmp/mcp
+    @mkdir -p ./packages/tmp/mcp
     @find /Users/davidmaple/kodegen-workspace -name "Cargo.lock" -type f -delete
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen && cargo install --path .' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-browser && cargo install --path . --force && kodegen-browser --http 127.0.0.1:30438' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-browser.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-citescrape && cargo install --path . --force && kodegen-citescrape --http 127.0.0.1:30439' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-citescrape.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-claude-agent && cargo install --path . --force && kodegen-claude-agent --http 127.0.0.1:30440' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-claude-agent.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-config && cargo install --path . --force && kodegen-config --http 127.0.0.1:30441' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-config.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-database && cargo install --path . --force && kodegen-database --http 127.0.0.1:30442' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-database.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-filesystem && cargo install --path . --force && kodegen-filesystem --http 127.0.0.1:30443' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-filesystem.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-git && cargo install --path . --force && kodegen-git --http 127.0.0.1:30444' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-git.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-github && cargo install --path . --force && kodegen-github --http 127.0.0.1:30445' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-github.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-introspection && cargo install --path . --force && kodegen-introspection --http 127.0.0.1:30446' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-introspection.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-process && cargo install --path . --force && kodegen-process --http 127.0.0.1:30447' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-process.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-prompt && cargo install --path . --force && kodegen-prompt --http 127.0.0.1:30448' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-prompt.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-reasoner && cargo install --path . --force && kodegen-reasoner --http 127.0.0.1:30449' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-reasoner.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-sequential-thinking && cargo install --path . --force && kodegen-sequential-thinking --http 127.0.0.1:30450' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-tools-terminal && cargo install --path . --force && kodegen-terminal --http 127.0.0.1:30451' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-terminal.log 2>&1 &
-    @nohup sh -c 'cd /Users/davidmaple/kodegen-workspace/kodegen-candle-agent && cargo install --path . --force && kodegen-candle-agent --http 127.0.0.1:30452' > /Users/davidmaple/kodegen-workspace/tmp/mcp/kodegen-candle-agent.log 2>&1 &
-    @tail -F /Users/davidmaple/kodegen-workspace/tmp/mcp/*.log
+    @nohup sh -c 'cd ./packages/kodegen && cargo clean && cargo install --path .' > ./packages/tmp/mcp/kodegen.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-browser && cargo clean && cargo install --path . --force && kodegen-browser --http 127.0.0.1:30438' > ./packages/tmp/mcp/kodegen-browser.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-citescrape && cargo clean && cargo install --path . --force && kodegen-citescrape --http 127.0.0.1:30439' > ./packages/tmp/mcp/kodegen-citescrape.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-claude-agent && cargo clean && cargo install --path . --force && kodegen-claude-agent --http 127.0.0.1:30440' > ./packages/tmp/mcp/kodegen-claude-agent.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-config && cargo clean && cargo install --path . --force && kodegen-config --http 127.0.0.1:30441' > ./packages/tmp/mcp/kodegen-config.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-database && cargo clean && cargo install --path . --force && kodegen-database --http 127.0.0.1:30442' > ./packages/tmp/mcp/kodegen-database.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-filesystem && cargo clean && cargo install --path . --force && kodegen-filesystem --http 127.0.0.1:30443' > ./packages/tmp/mcp/kodegen-filesystem.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-git && cargo clean && cargo install --path . --force && kodegen-git --http 127.0.0.1:30444' > ./packages/tmp/mcp/kodegen-git.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-github && cargo clean && cargo install --path . --force && kodegen-github --http 127.0.0.1:30445' > ./packages/tmp/mcp/kodegen-github.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-introspection && cargo clean && cargo install --path . --force && kodegen-introspection --http 127.0.0.1:30446' > ./packages/tmp/mcp/kodegen-introspection.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-process && cargo clean && cargo install --path . --force && kodegen-process --http 127.0.0.1:30447' > ./packages/tmp/mcp/kodegen-process.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-prompt && cargo clean && cargo install --path . --force && kodegen-prompt --http 127.0.0.1:30448' > ./packages/tmp/mcp/kodegen-prompt.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-reasoner && cargo clean && cargo install --path . --force && kodegen-reasoner --http 127.0.0.1:30449' > ./packages/tmp/mcp/kodegen-reasoner.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-sequential-thinking && cargo clean && cargo install --path . --force && kodegen-sequential-thinking --http 127.0.0.1:30450' > ./packages/tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-tools-terminal && cargo clean && cargo install --path . --force && kodegen-terminal --http 127.0.0.1:30451' > ./packages/tmp/mcp/kodegen-terminal.log 2>&1 &
+    @nohup sh -c 'cd ./packages/kodegen-candle-agent && cargo clean && cargo install --path . --force && kodegen-candle-agent --http 127.0.0.1:30452' > ./packages/tmp/mcp/kodegen-candle-agent.log 2>&1 &
+    @tail -F ./packages/tmp/mcp/*.log

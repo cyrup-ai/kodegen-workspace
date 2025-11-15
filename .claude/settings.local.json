@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__kodegen__fs_start_search",
+      "mcp__kodegen__fs_get_search_results",
+      "mcp__kodegen__fs_read_multiple_files",
+      "mcp__kodegen__fs_read_file",
+      "mcp__kodegen__fs_edit_block",
+      "mcp__kodegen__terminal_start_command",
+      "mcp__kodegen__terminal_read_output",
+      "Bash(cat:*)"
+    ],
+    "deny": [
+      "Bash",
+      "Fetch",
+      "WebFetch",
+      "Search"
+    ],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "kodegen"
+  ]
+}
