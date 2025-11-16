@@ -12,7 +12,10 @@
       "Bash(kodegen-filesystem:*)",
       "Bash(RUST_LOG=debug kodegen-filesystem:*)",
       "mcp__kodegen__fs_list_directory",
-      "mcp__kodegen__fs_write_file"
+      "mcp__kodegen__fs_write_file",
+      "Bash(lsd --tree:*)",
+      "WebFetch(domain:www.ytyng.com)",
+      "WebFetch(domain:www.nerdfonts.com)"
     ],
     "deny": [],
     "ask": []
