@@ -10,7 +10,9 @@
       "mcp__kodegen__terminal_read_output",
       "Bash(just dep-local:*)",
       "Bash(kodegen-filesystem:*)",
-      "Bash(RUST_LOG=debug kodegen-filesystem:*)"
+      "Bash(RUST_LOG=debug kodegen-filesystem:*)",
+      "mcp__kodegen__fs_list_directory",
+      "mcp__kodegen__fs_write_file"
     ],
     "deny": [],
     "ask": []

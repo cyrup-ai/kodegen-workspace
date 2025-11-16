@@ -456,19 +456,19 @@ mcp:
     @mkdir -p ./tmp/mcp
     @echo 'Starting new MCP processes ...'
     @nohup sh -c 'cargo install --force kodegen' > ./tmp/mcp/kodegen.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_browser --force && RUST_LOG=info exec kodegen-browser --http 127.0.0.1:30438' > ./tmp/mcp/kodegen-browser.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_citescrape --force && RUST_LOG=info exec kodegen-citescrape --http 127.0.0.1:30439' > ./tmp/mcp/kodegen-citescrape.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_claude_agent --force && RUST_LOG=info exec kodegen-claude-agent --http 127.0.0.1:30440' > ./tmp/mcp/kodegen-claude-agent.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_config --force && RUST_LOG=info exec kodegen-config --http 127.0.0.1:30441' > ./tmp/mcp/kodegen-config.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_database --force && RUST_LOG=info exec kodegen-database --http 127.0.0.1:30442' > ./tmp/mcp/kodegen-database.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_filesystem --force && RUST_LOG=info exec kodegen-filesystem --http 127.0.0.1:30443' > ./tmp/mcp/kodegen-filesystem.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_git --force && RUST_LOG=info exec kodegen-git --http 127.0.0.1:30444' > ./tmp/mcp/kodegen-git.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_github --force && RUST_LOG=info exec kodegen-github --http 127.0.0.1:30445' > ./tmp/mcp/kodegen-github.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_introspection --force && RUST_LOG=info exec kodegen-introspection --http 127.0.0.1:30446' > ./tmp/mcp/kodegen-introspection.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_process --force && RUST_LOG=info exec kodegen-process --http 127.0.0.1:30447' > ./tmp/mcp/kodegen-process.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_prompt --force && RUST_LOG=info exec kodegen-prompt --http 127.0.0.1:30448' > ./tmp/mcp/kodegen-prompt.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_reasoner --force && RUST_LOG=info exec kodegen-reasoner --http 127.0.0.1:30449' > ./tmp/mcp/kodegen-reasoner.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_sequential_thinking --force && RUST_LOG=info exec kodegen-sequential-thinking --http 127.0.0.1:30450' > ./tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_terminal --force && RUST_LOG=info exec kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_candle_agent --force && RUST_LOG=info exec kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_browser --force && kodegen-browser --http 127.0.0.1:30438' > ./tmp/mcp/kodegen-browser.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_citescrape --force && kodegen-citescrape --http 127.0.0.1:30439' > ./tmp/mcp/kodegen-citescrape.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_claude_agent --force && kodegen-claude-agent --http 127.0.0.1:30440' > ./tmp/mcp/kodegen-claude-agent.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_config --force && kodegen-config --http 127.0.0.1:30441' > ./tmp/mcp/kodegen-config.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_database --force && kodegen-database --http 127.0.0.1:30442' > ./tmp/mcp/kodegen-database.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_filesystem --force && kodegen-filesystem --http 127.0.0.1:30443' > ./tmp/mcp/kodegen-filesystem.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_git --force && kodegen-git --http 127.0.0.1:30444' > ./tmp/mcp/kodegen-git.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_github --force && kodegen-github --http 127.0.0.1:30445' > ./tmp/mcp/kodegen-github.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_introspection --force && kodegen-introspection --http 127.0.0.1:30446' > ./tmp/mcp/kodegen-introspection.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_process --force && kodegen-process --http 127.0.0.1:30447' > ./tmp/mcp/kodegen-process.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_prompt --force && kodegen-prompt --http 127.0.0.1:30448' > ./tmp/mcp/kodegen-prompt.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_reasoner --force && kodegen-reasoner --http 127.0.0.1:30449' > ./tmp/mcp/kodegen-reasoner.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_sequential_thinking --force && kodegen-sequential-thinking --http 127.0.0.1:30450' > ./tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_terminal --force && kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_candle_agent --force && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
     @tail -F ./tmp/mcp/*.log
