@@ -55,7 +55,8 @@
       "Bash(/tmp/get_config_backup.rs)",
       "Bash(chmod:*)",
       "WebFetch(domain:github.com)",
-      "SlashCommand(/task /Users/davidmaple/kodegen-workspace/task/00_KODEGEN_SIMD.md)"
+      "SlashCommand(/task /Users/davidmaple/kodegen-workspace/task/00_KODEGEN_SIMD.md)",
+      "mcp__kodegen__fs_delete_file"
     ],
     "deny": [],
     "ask": []
