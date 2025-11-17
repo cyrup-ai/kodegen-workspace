@@ -1,0 +1,155 @@
+{
+  "index_settings": {
+    "docstore_compression": "lz4",
+    "docstore_blocksize": 16384
+  },
+  "segments": [
+    {
+      "segment_id": "06ea68bc-22ab-4a08-9842-353c17ffdd36",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "91151431-b4d2-4e5e-97b0-0ea96c526cca",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "e4198ed7-e265-4bf9-a539-7390df4338f1",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "acc50fbe-6e43-4027-a7db-8bc8c1148174",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "266a3369-0c0c-41de-80c3-4a76d3d6150d",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "d083ba61-943a-44fe-806f-bd68386c932e",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "faee80f2-c2c5-4e7f-98a2-79beb5257bb6",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "db455ef2-5be0-4a9d-bd95-4034c7b1b4df",
+      "max_doc": 1,
+      "deletes": null
+    }
+  ],
+  "schema": [
+    {
+      "name": "url",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "path",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "raw_markdown",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "raw_markdown"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "plain_content",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "snippet",
+      "type": "text",
+      "options": {
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "crawl_date",
+      "type": "date",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true,
+        "precision": "seconds"
+      }
+    },
+    {
+      "name": "file_size",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    },
+    {
+      "name": "word_count",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    }
+  ],
+  "opstamp": 16
+}

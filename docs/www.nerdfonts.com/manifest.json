@@ -1,0 +1,19 @@
+{
+  "crawl_id": "1aa5967d-b733-436a-b3d1-bfb87fc8a6ee",
+  "start_url": "https://www.nerdfonts.com/cheat-sheet",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/www.nerdfonts.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/www.nerdfonts.com/.search_index",
+  "start_time": 1763295563,
+  "end_time": 1763310383,
+  "status": "Completed",
+  "total_pages": 8,
+  "config_summary": {
+    "start_url": "https://www.nerdfonts.com/cheat-sheet",
+    "max_depth": 1,
+    "limit": 50,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}
