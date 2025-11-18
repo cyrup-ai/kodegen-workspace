@@ -1,0 +1,102 @@
+name: Windows Build Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  windows-build:
+    name: Windows Compilation Check
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          target: x86_64-pc-windows-msvc
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+      
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.toml') }}
+      
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.toml') }}
+      
+      - name: Run Windows compilation check
+        shell: powershell
+        run: |
+          .\scripts\windows_build_check.ps1
+      
+      - name: Upload compilation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-compile-results
+          path: task/windows_compile_results/
+      
+      - name: Run platform parity audit
+        run: |
+          cd scripts/platform_audit
+          cargo run --release
+      
+      - name: Upload parity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-parity-report
+          path: task/platform_parity_report.md
+      
+      - name: Check for compilation failures
+        shell: powershell
+        run: |
+          $report = Get-Content task/windows_compile_results/compilation_report.json | ConvertFrom-Json
+          $failed = $report | Where-Object { -not $_.Success }
+          if ($failed.Count -gt 0) {
+            Write-Error "❌ $($failed.Count) packages failed compilation"
+            exit 1
+          }
+          Write-Host "✅ All packages compiled successfully"
+  
+  windows-test:
+    name: Windows Service Test
+    runs-on: windows-latest
+    needs: windows-build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build kodegend
+        run: |
+          cd packages/kodegend
+          cargo build --release
+      
+      - name: Test Windows Service installation (dry-run)
+        shell: powershell
+        run: |
+          # Test service creation (requires admin, so dry-run)
+          Write-Host "Testing kodegend Windows Service binary..."
+          .\packages\kodegend\target\release\kodegend.exe --version

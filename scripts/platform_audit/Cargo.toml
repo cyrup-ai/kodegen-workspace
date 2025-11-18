@@ -1,0 +1,10 @@
+[package]
+name = "platform_audit"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+walkdir = "2"
+regex = "1"
+anyhow = "1"
+chrono = "0.4"

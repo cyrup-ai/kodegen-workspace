@@ -82,7 +82,8 @@
       "Bash(rg '#\\[cfg\\(windows\\)\\]' --count-matches)",
       "WebFetch(domain:users.rust-lang.org)",
       "mcp__kodegen__process_kill",
-      "mcp__kodegen__terminal_stop_command"
+      "mcp__kodegen__terminal_stop_command",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
