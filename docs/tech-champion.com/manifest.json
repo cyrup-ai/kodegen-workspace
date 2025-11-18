@@ -1,0 +1,19 @@
+{
+  "crawl_id": "9d180b9c-ccd1-4233-8ef3-1bd30ba7159d",
+  "start_url": "https://tech-champion.com/linux/best-practices-for-linux-daemon-logging-syslog-vs-custom-solutions/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/tech-champion.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/tech-champion.com/.search_index",
+  "start_time": 1763413572,
+  "end_time": 1763417469,
+  "status": "Completed",
+  "total_pages": 93,
+  "config_summary": {
+    "start_url": "https://tech-champion.com/linux/best-practices-for-linux-daemon-logging-syslog-vs-custom-solutions/",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

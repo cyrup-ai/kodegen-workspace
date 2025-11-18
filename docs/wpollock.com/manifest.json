@@ -1,0 +1,19 @@
+{
+  "crawl_id": "8586bf04-0dad-46ec-a133-fe3b8571a9b2",
+  "start_url": "https://wpollock.com/AUnix2/Logging.htm",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/wpollock.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/wpollock.com/.search_index",
+  "start_time": 1763413573,
+  "end_time": 1763417463,
+  "status": "Completed",
+  "total_pages": 3,
+  "config_summary": {
+    "start_url": "https://wpollock.com/AUnix2/Logging.htm",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

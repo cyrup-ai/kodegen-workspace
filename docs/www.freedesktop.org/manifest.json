@@ -1,0 +1,19 @@
+{
+  "crawl_id": "01533a1b-69c2-4643-9e44-7d16e479423e",
+  "start_url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/www.freedesktop.org",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/www.freedesktop.org/.search_index",
+  "start_time": 1763384214,
+  "end_time": 1763417463,
+  "status": "Completed",
+  "total_pages": 52,
+  "config_summary": {
+    "start_url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+    "max_depth": 1,
+    "limit": 50,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

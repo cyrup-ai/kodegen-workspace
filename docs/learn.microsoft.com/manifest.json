@@ -1,0 +1,19 @@
+{
+  "crawl_id": "3bacfb74-0b19-42a7-9107-6e79f1009540",
+  "start_url": "https://learn.microsoft.com/en-us/windows/deployment/usmt/usmt-recognized-environment-variables",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/learn.microsoft.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/learn.microsoft.com/.search_index",
+  "start_time": 1763472803,
+  "end_time": 1763473352,
+  "status": "Completed",
+  "total_pages": 125,
+  "config_summary": {
+    "start_url": "https://learn.microsoft.com/en-us/windows/deployment/usmt/usmt-recognized-environment-variables",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

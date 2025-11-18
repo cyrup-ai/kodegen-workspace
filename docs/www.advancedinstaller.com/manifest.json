@@ -1,0 +1,19 @@
+{
+  "crawl_id": "6d44f87e-8686-47cd-ac06-7051fdc77771",
+  "start_url": "https://www.advancedinstaller.com/appdata-localappdata-programdata.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/www.advancedinstaller.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/www.advancedinstaller.com/.search_index",
+  "start_time": 1763472803,
+  "end_time": 1763473352,
+  "status": "Completed",
+  "total_pages": 126,
+  "config_summary": {
+    "start_url": "https://www.advancedinstaller.com/appdata-localappdata-programdata.html",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

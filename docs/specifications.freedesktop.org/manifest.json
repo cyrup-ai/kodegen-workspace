@@ -1,0 +1,19 @@
+{
+  "crawl_id": "e151061f-1155-4875-8ee7-aa94f9b2605b",
+  "start_url": "https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/specifications.freedesktop.org",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/specifications.freedesktop.org/.search_index",
+  "start_time": 1763413262,
+  "end_time": 1763417462,
+  "status": "Completed",
+  "total_pages": 2,
+  "config_summary": {
+    "start_url": "https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

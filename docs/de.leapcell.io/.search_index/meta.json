@@ -1,0 +1,195 @@
+{
+  "index_settings": {
+    "docstore_compression": "lz4",
+    "docstore_blocksize": 16384
+  },
+  "segments": [
+    {
+      "segment_id": "7095ea4e-8ab3-4b13-a086-1d6430534b92",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "634486a9-df76-4130-9464-e8fd808d5159",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "bfcb763a-c6fa-48f3-8ef8-9d4a3be88f05",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "714a2453-9dd2-4325-b044-4768c3389feb",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "3b6b230d-e990-452f-be23-6cfc1d3869e0",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "10250aa4-8af6-4e90-939a-43778f7b1907",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "dcc3c490-138e-4285-b783-9dbfaed942f0",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "b3fe6f33-abd2-4d25-9f15-e41f7a65d8e3",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "438a3965-ee56-4b88-b3f7-7a65b1b9719d",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "83b67761-296b-4527-9a92-196f433a7a54",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "d392a448-86fb-44f8-8c23-2b60a7751ea6",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "054b0c34-ab89-4dd1-b829-2e061401455a",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "04edc9ad-fc9b-4136-af2f-20a0735cdb70",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "bb19c0b9-1ff5-4cbb-8a21-658c919849bd",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "fa7fb102-010f-4b1b-ac5d-117409d0c43e",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "303ae0b9-fbb9-4f1b-bb6f-aca31a5fb805",
+      "max_doc": 1,
+      "deletes": null
+    }
+  ],
+  "schema": [
+    {
+      "name": "url",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "path",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "raw_markdown",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "raw_markdown"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "plain_content",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "snippet",
+      "type": "text",
+      "options": {
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "crawl_date",
+      "type": "date",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true,
+        "precision": "seconds"
+      }
+    },
+    {
+      "name": "file_size",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    },
+    {
+      "name": "word_count",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    }
+  ],
+  "opstamp": 32
+}

@@ -451,6 +451,7 @@ mcp:
     @pkill -f kodegen-sequential-thinking || true
     @pkill -f kodegen-terminal || true
     @pkill -f kodegen-candle-agent || true
+    @pkill -f kodegend || true
     @rm -rf ./tmp/mcp
     @sleep 2
     @mkdir -p ./tmp/mcp

@@ -1,0 +1,19 @@
+{
+  "crawl_id": "615c217e-887b-4a32-a58c-49dba42f2669",
+  "start_url": "https://www.emmet-gray.com/Articles/SetPermissions.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/www.emmet-gray.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/www.emmet-gray.com/.search_index",
+  "start_time": 1763500597,
+  "end_time": 1763502980,
+  "status": "Completed",
+  "total_pages": 11,
+  "config_summary": {
+    "start_url": "https://www.emmet-gray.com/Articles/SetPermissions.html",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

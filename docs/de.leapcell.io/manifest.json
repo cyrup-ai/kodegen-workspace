@@ -1,0 +1,19 @@
+{
+  "crawl_id": "4cb7e961-1a57-483f-9b2c-f9412f9f7724",
+  "start_url": "https://de.leapcell.io/blog/en/zero-cost-string-handling-in-rust-web-apis-with-cow",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/de.leapcell.io",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/de.leapcell.io/.search_index",
+  "start_time": 1763412455,
+  "end_time": 1763417467,
+  "status": "Completed",
+  "total_pages": 16,
+  "config_summary": {
+    "start_url": "https://de.leapcell.io/blog/en/zero-cost-string-handling-in-rust-web-apis-with-cow",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

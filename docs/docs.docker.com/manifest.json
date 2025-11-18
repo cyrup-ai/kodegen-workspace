@@ -1,0 +1,19 @@
+{
+  "crawl_id": "7d44ef06-1f4e-4b9c-9247-63785dc568df",
+  "start_url": "https://docs.docker.com/engine/containers/start-containers-automatically/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.docker.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.docker.com/.search_index",
+  "start_time": 1763384222,
+  "end_time": 1763417467,
+  "status": "Completed",
+  "total_pages": 22,
+  "config_summary": {
+    "start_url": "https://docs.docker.com/engine/containers/start-containers-automatically/",
+    "max_depth": 1,
+    "limit": 20,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

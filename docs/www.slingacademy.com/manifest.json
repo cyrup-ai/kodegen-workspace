@@ -1,0 +1,23 @@
+{
+  "crawl_id": "89d881ab-45d2-4810-90e0-006a7398d7d2",
+  "start_url": "https://www.slingacademy.com/article/performance-considerations-when-to-use-cow-str-in-rust/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/www.slingacademy.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/www.slingacademy.com/.search_index",
+  "start_time": 1763412455,
+  "end_time": 1763417470,
+  "status": {
+    "Failed": {
+      "error": "No pages could be crawled. This may indicate an invalid URL, network issue, or inaccessible domain."
+    }
+  },
+  "total_pages": 0,
+  "config_summary": {
+    "start_url": "https://www.slingacademy.com/article/performance-considerations-when-to-use-cow-str-in-rust/",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

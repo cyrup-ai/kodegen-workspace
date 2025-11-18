@@ -1,0 +1,19 @@
+{
+  "crawl_id": "d602ee2e-2b5c-4196-9120-0803ca6a7a65",
+  "start_url": "https://docs.rs/windows-service/latest/windows_service/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.rs",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.rs/.search_index",
+  "start_time": 1763472818,
+  "end_time": 1763473352,
+  "status": "Completed",
+  "total_pages": 50,
+  "config_summary": {
+    "start_url": "https://docs.rs/windows-service/latest/windows_service/",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

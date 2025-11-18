@@ -1,0 +1,19 @@
+{
+  "crawl_id": "195f41ed-f69a-4dee-88fe-f5e8eab834bb",
+  "start_url": "https://github.com/knsd/daemonize",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/github.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/github.com/.search_index",
+  "start_time": 1763414634,
+  "end_time": 1763417468,
+  "status": "Completed",
+  "total_pages": 109,
+  "config_summary": {
+    "start_url": "https://github.com/knsd/daemonize",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

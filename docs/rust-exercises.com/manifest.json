@@ -1,0 +1,19 @@
+{
+  "crawl_id": "c616c8bf-95fc-4946-96a4-03d295d2f128",
+  "start_url": "https://rust-exercises.com/100-exercises/07_threads/03_leak.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/rust-exercises.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/rust-exercises.com/.search_index",
+  "start_time": 1763412455,
+  "end_time": 1763417462,
+  "status": "Completed",
+  "total_pages": 105,
+  "config_summary": {
+    "start_url": "https://rust-exercises.com/100-exercises/07_threads/03_leak.html",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}
