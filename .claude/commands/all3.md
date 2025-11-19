@@ -100,6 +100,10 @@ Rate the imlementation of the following requirements on a scale of 1-10
   - bring focus to the items outstanding with specific guidance on what needs to be resolved
   - print the full filepath (if incomplete) as the last line of output: `{{absolute_file_path}}`
 
+## NO GIT COMMANDS
+
+DO NOT USE `git` commands of any type. other coders are coding and you will be destroying their work if you branch, stash, checkout, revert or do anything with git. YOU WILL BE IMMEDIATELY FIRED if you use any `git` commands whatsoever!!
+
 ## TOOLS 
 
 - use `mcp__kodegen__sequential_thinking` and ULTRATHINK to think step by step about the task

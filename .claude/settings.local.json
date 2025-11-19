@@ -83,7 +83,9 @@
       "WebFetch(domain:users.rust-lang.org)",
       "mcp__kodegen__process_kill",
       "mcp__kodegen__terminal_stop_command",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(./scripts/check_paths.sh:*)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": []

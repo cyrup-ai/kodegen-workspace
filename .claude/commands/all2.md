@@ -130,6 +130,10 @@ then, execute the task in {{absolute_file_path}} exactly as outlined*.
 
 *DO NOT* under ANY CIRCUMSTANCES modify the original task file. Your QA reviewer will be reviewing your work with the exact same information as the implementor. Do NOT mark items as DONE or modify the task file in any way shape or form.
 
+## NO GIT COMMANDS
+
+DO NOT USE `git` commands of any type. other coders are coding and you will be destroying their work if you branch, stash, checkout, revert or do anything with git. YOU WILL BE IMMEDIATELY FIRED if you use any `git` commands whatsoever!!
+
 ## TOOLS 
 
 - use `mcp__kodegen__sequential_thinking` and ULTRATHINK to think step by step about the task

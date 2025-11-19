@@ -19,11 +19,11 @@ rg '"\\\\"' packages/ --type rust | head -20
 
 echo
 echo "=== Recommended pattern ==="
-cat << 'EOF'
+cat << 'INNEREOF'
 // GOOD - Platform-agnostic
 let path = PathBuf::from(base).join("subdir").join("file.txt");
 
 // BAD - Hardcoded separator
 let path = format!("{}/subdir/file.txt", base);
 let path = format!("{}\\subdir\\file.txt", base);
-EOF
+INNEREOF

@@ -1,0 +1,210 @@
+{
+  "index_settings": {
+    "docstore_compression": "lz4",
+    "docstore_blocksize": 16384
+  },
+  "segments": [
+    {
+      "segment_id": "4036e687-7838-49bb-8593-4f4d967d8da0",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "dffa484a-4600-4cd6-8ffe-0284b2b38bef",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "9f7dc766-27d7-4f56-ad4e-585fd1115ec1",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "a2dfe6fd-f03c-418b-b9b8-c2341d53e7ad",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "ca17799b-da94-44f2-a62d-57df151ccf37",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "bbce6294-baee-457b-8620-785bb0b0e934",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "4b52d219-7bba-4c5e-8f85-609469a12802",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "32a85a4f-5f76-4944-9601-153b1459cde6",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "744e3644-b1c4-46c4-afc2-76047ffc9638",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "f2e6a012-ea02-4a23-b2c9-c33595d20a6b",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "462314a5-64ed-4202-8fff-7058ac446687",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "8c72806f-575b-4ff9-afb3-9552f9a450a5",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "944f6d1e-f188-4682-bcfc-a0be67d3385f",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "b1ef24e8-d98c-4277-a3ba-19324ffe5fdd",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "dbdf2de7-a0d0-44ba-af3c-6fefd659feac",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "84132af3-7862-4ec5-b4db-ed0f8b3d4434",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "24441392-e24c-40e8-8328-c90c33ee65a6",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "00771fd2-f33d-48cf-bc43-b512625b89b0",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "34a719b1-359e-4e33-a27a-369ae5ac0a99",
+      "max_doc": 1,
+      "deletes": null
+    }
+  ],
+  "schema": [
+    {
+      "name": "url",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "path",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "raw_markdown",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "raw_markdown"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "plain_content",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "snippet",
+      "type": "text",
+      "options": {
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "crawl_date",
+      "type": "date",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true,
+        "precision": "seconds"
+      }
+    },
+    {
+      "name": "file_size",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    },
+    {
+      "name": "word_count",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    }
+  ],
+  "opstamp": 38
+}
