@@ -85,7 +85,16 @@
       "mcp__kodegen__terminal_stop_command",
       "Bash(mkdir:*)",
       "Bash(./scripts/check_paths.sh:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(./target/debug/kodegend:*)",
+      "mcp__kodegen__browser_web_search",
+      "mcp__kodegen__scrape_url",
+      "Bash(cargo search:*)",
+      "Bash(cargo info:*)",
+      "Bash(if [ -d \"./tmp/alacritty\" ])",
+      "Bash(then find ./tmp/alacritty -name \"Cargo.toml\" -type f)",
+      "Bash(else echo \"No alacritty dir\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

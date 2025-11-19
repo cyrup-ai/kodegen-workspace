@@ -60,6 +60,10 @@ In our chat, print the full absolute filepath as the VERY LAST LINE IN YOUR OUTP
 
 Then return immediately to planning, awaiting your next instruction.
 
+## NO OPTIONS
+
+The task file should not present "options" for the developer but instead should be prescriptive in nature. When you evaluate options, you should always select the most feature-rich, complex, code-correct "option" and present it as the only required implementation path. Avoid being lazy and going with the path of least resistance and instead focus on code correctness and achieving the ultimate goal.
+
 ## TOOLS 
 
 - use `mcp__kodegen__sequential_thinking` and ULTRATHINK to think step by step about the task
