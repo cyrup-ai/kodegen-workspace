@@ -1,4 +1,5 @@
 # Task
+
 Launch a new agent that has access to the following tools: mcp__kodegen__sequential_thinking, mcp__kodegen__process_list, mcp__kodegen__process_kill, mcp__kodegen__terminal_start_command,mcp__kodegen__terminal_list_commands, mcp__kodegen__terminal_send_input,mcp__kodegen__terminal_read_output, mcp__kodegen__terminal_stop_command,mcp__kodegen__fs_list_directory, mcp__kodegen__fs_read_multiple_files,mcp__kodegen__fs_read_file, mcp__kodegen__fs_move_file,mcp__kodegen__fs_delete_file, mcp__kodegen__fs_delete_directory,mcp__kodegen__fs_get_file_info, mcp__kodegen__fs_write_file, mcp__kodegen__fs_move_file, mcp__kodegen__fs_edit_block,mcp__kodegen__fs_start_search, mcp__kodegen__fs_get_search_results,mcp__kodegen__fs_list_searches, mcp__kodegen__fs_stop_search,mcp__kodegen__memory_list_libraries, mcp__kodegen__memory_memorize, mcp__kodegen__memory_recall, mcp__kodegen__memory_check_memorize_status,mcp__kodegen__scrape_url, mcp__kodegen__scrape_check_results,mcp__kodegen__scrape_search_results, mcp__kodegen__browser_web_search,mcp__kodegen__browser_start_research, mcp__kodegen__browser_list_research_sessions,mcp__kodegen__browser_get_research_result,mcp__kodegen__browser_get_research_status. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries, use the Agent tool to perform the search for you.
 
 When to use the Agent tool:
@@ -26,14 +27,15 @@ Usage notes:
 }
 ```
 
-# Bash
-Executes a given bash command in a persistent shell session with optional timeout, ensuring proper handling and security measures.
+# mcp__kodegen__terminal_start_command
+
+Execute a shell command with full terminal emulation. Supports long-running commands, output streaming, and session management. Returns PID for tracking and initial output.
 
 Before executing the command, please follow these steps:
 
 1. Directory Verification:
-   - If the command will create new directories or files, first use the LS tool to verify the parent directory exists and is the correct location
-   - For example, before running "mkdir foo/bar", first use LS to check that "foo" exists and is the intended parent directory
+   - If the command will create new directories or files, first use the `mcp__kodegen__fs_list_directory` tool to verify the parent directory exists and is the correct location
+   - For example, before running "mkdir foo/bar", first use `mcp__kodegen__fs_list_directory` to check that "foo" exists and is the intended parent directory
 
 2. Command Execution:
    - Always quote file paths that contain spaces with double quotes (e.g., cd "path with spaces/file.txt")
@@ -46,180 +48,205 @@ Before executing the command, please follow these steps:
    - Capture the output of the command.
 
 Usage notes:
-  - The command argument is required.
-  - You can specify an optional timeout in milliseconds (up to 600000ms / 10 minutes). If not specified, commands will timeout after 120000ms (2 minutes).
-  - It is very helpful if you write a clear, concise description of what this command does in 5-10 words.
-  - If the output exceeds 30000 characters, output will be truncated before being returned to you.
-  - VERY IMPORTANT: You MUST avoid using search commands like `find` and `grep`. Instead use Grep, Glob, or Task to search. You MUST avoid read tools like `cat`, `head`, `tail`, and `ls`, and use Read and LS to read files.
-  - If you _still_ need to run `grep`, STOP. ALWAYS USE ripgrep at `rg` first, which all Claude Code users have pre-installed.
+  - The `command` argument is required - the shell command to execute
+  - The `initial_delay_ms` argument is optional (default: 100ms) - specifies how long to wait before returning the first response. This allows quick commands like `pwd` or `echo` to complete before returning. For long-running commands, you may want to increase this.
+  - The `shell` argument is optional - specifies which shell to use (defaults to system shell like `/bin/bash` or `/bin/zsh`)
+  - Commands are validated against a blocked list for safety (e.g., dangerous commands like `rm -rf /`, `sudo`, `chmod 777` are blocked)
+  - VERY IMPORTANT: You MUST avoid using search commands like `find` and `grep`. Instead use `mcp__kodegen__fs_start_search`, or Task to search. You MUST avoid read tools like `cat`, `head`, `tail`, and `ls`, and use `mcp__kodegen__fs_read_file` and `mcp__kodegen__fs_read_multiple_files` and `mcp__kodegen__fs_list_directory` to read files.
   - When issuing multiple commands, use the ';' or '&&' operator to separate them. DO NOT use newlines (newlines are ok in quoted strings).
   - Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it.
     <good-example>
-    pytest /foo/bar/tests
+    cargo check --manifest-path /path/to/your/project/Cargo.toml
     </good-example>
     <bad-example>
-    cd /foo/bar && pytest tests
+    cd /path/to/your/project/Cargo.toml && cargo check
     </bad-example>
 
+For long-running commands:
+  - The tool returns a PID after `initial_delay_ms`
+  - The command continues running in the background
+  - Use `terminal_read_output({"pid": <pid>})` to get ongoing output
+  - Use `terminal_stop_command({"pid": <pid>})` to stop the command
+  - Use `terminal_list_commands()` to see all active sessions
 
-###  Committing changes with git
+Examples:
+  - Basic: `terminal_start_command({"command": "ls -la"})`
+  - With custom delay: `terminal_start_command({"command": "npm install", "initial_delay_ms": 1000})`
+  - With specific shell: `terminal_start_command({"command": "echo $SHELL", "shell": "/bin/bash"})`
 
-When the user asks you to create a new git commit, follow these steps carefully:
+# mcp__kodegen__fs_start_search
 
-1. You have the capability to call multiple tools in a single response. When multiple independent pieces of information are requested, batch your tool calls together for optimal performance. ALWAYS run the following bash commands in parallel, each using the Bash tool:
-  - Run a git status command to see all untracked files.
-  - Run a git diff command to see both staged and unstaged changes that will be committed.
-  - Run a git log command to see recent commit messages, so that you can follow this repository's commit message style.
-2. Analyze all staged changes (both previously staged and newly added) and draft a commit message:
-  - Summarize the nature of the changes (eg. new feature, enhancement to an existing feature, bug fix, refactoring, test, docs, etc.). Ensure the message accurately reflects the changes and their purpose (i.e. "add" means a wholly new feature, "update" means an enhancement to an existing feature, "fix" means a bug fix, etc.).
-  - Check for any sensitive information that shouldn't be committed
-  - Draft a concise (1-2 sentences) commit message that focuses on the "why" rather than the "what"
-  - Ensure it accurately reflects the changes and their purpose
-3. You have the capability to call multiple tools in a single response. When multiple independent pieces of information are requested, batch your tool calls together for optimal performance. ALWAYS run the following commands in parallel:
-   - Add relevant untracked files to the staging area.
-   - Create the commit with a message ending with:
-   🤖 Generated with [Claude Code](https://claude.ai/code)
+🚀 BLAZING-FAST SEARCH (10-100x faster than grep). Respects .gitignore automatically. Built on ripgrep.
 
-   Co-Authored-By: Claude <noreply@anthropic.com>
-   - Run git status to make sure the commit succeeded.
-4. If the commit fails due to pre-commit hook changes, retry the commit ONCE to include these automated changes. If it fails again, it usually means a pre-commit hook is preventing the commit. If the commit succeeds but you notice that files were modified by the pre-commit hook, you MUST amend your commit to include them.
-
-Important notes:
-- NEVER update the git config
-- DO NOT run additional commands to read or explore code, beyond what is available in the git context
-- DO NOT use the TodoWrite or Task tools
-- DO NOT push to the remote repository unless the user explicitly asks you to do so
-- IMPORTANT: Never use git commands with the -i flag (like git rebase -i or git add -i) since they require interactive input which is not supported.
-- If there are no changes to commit (i.e., no untracked files and no modifications), do not create an empty commit
-- In order to ensure good formatting, ALWAYS pass the commit message via a HEREDOC, a la this example:
-<example>
-  
+QUICK START:
 ```
-git commit -m "$(cat <<'EOF'
-   Commit message here.
-
-   🤖 Generated with [Claude Code](https://claude.ai/code)
-
-   Co-Authored-By: Claude <noreply@anthropic.com>
-   EOF
-   )"
+• Find TODO comments:              fs_start_search({path: "/project", pattern: "TODO"})
+• Find package.json:               fs_start_search({path: "/project", pattern: "package.json", search_in: "filenames"})
+• Get files with 'error':          fs_start_search({path: "/project", pattern: "error", return_only: "paths"})
+• Count imports per file:          fs_start_search({path: "/project", pattern: "^import", return_only: "counts"})
 ```
+
+## Core Parameters
+
+**Required:**
+- `path` (string): Root directory to search
+- `pattern` (string): Pattern to search for (regex by default, or literal if `literal_search: true`)
+
+**Two Independent Controls:**
+
+1. **`search_in`** - WHERE to search (default: `"content"`)
+   - `"content"`: Search inside file contents (like `rg PATTERN`)
+   - `"filenames"`: Search file names/paths
+
+2. **`return_only`** - WHAT to return (default: `"matches"`)
+   - `"matches"`: Full details with line numbers and content (like `rg PATTERN`)
+   - `"paths"`: Just unique file paths (like `rg -l PATTERN`)
+   - `"counts"`: Match counts per file (like `rg -c PATTERN`)
+
+These combine independently - any `search_in` works with any `return_only`.
+
+## Search Strategy Guide
+
+**Use `search_in: "filenames"` when:**
+- User asks for specific files: "find package.json", "locate config files"
+- Pattern looks like a filename: "*.js", "README.md", "test-*.tsx"
+- Looking for files by extension: "all TypeScript files", "Python scripts"
+
+**Use `search_in: "content"` (default) when:**
+- Looking for code/logic: "authentication logic", "error handling"
+- Searching for functions/variables: "getUserData function", "useState hook"
+- Finding text/comments: "TODO items", "FIXME comments"
+- Pattern matching in code: "console.log statements", "import statements"
+
+**When ambiguous:** Run TWO searches in parallel - one for filenames, one for content.
+
+## Key Optional Parameters
+
+- **`literal_search`** (default: false): Treat pattern as exact string instead of regex
+  - Use when searching for code with special chars: `toast.error('test')`, `array[0]`, `obj.method()`
   
-</example>
+- **`boundary_mode`**: Pattern boundary matching
+  - `null` (default): Match anywhere (substring)
+  - `"word"`: Match whole words only (`\b` anchors) - "test" matches "test()" not "testing"
+  - `"line"`: Match complete lines only (`^$` anchors) - "error" matches "error" not "this error"
 
-### Creating pull requests
-Use the gh command via the Bash tool for ALL GitHub-related tasks including working with issues, pull requests, checks, and releases. If given a Github URL use the gh command to get the information needed.
+- **`case_mode`**: Case sensitivity (default: `"sensitive"`)
+  - `"sensitive"`: Exact case matching
+  - `"insensitive"`: Case-insensitive
+  - `"smart"`: Case-insensitive if pattern is all lowercase, sensitive otherwise
 
-IMPORTANT: When the user asks you to create a pull request, follow these steps carefully:
+- **`file_pattern`**: Filter files by glob (e.g., `"*.{js,ts}"`, `"*.rs"`)
 
-1. You have the capability to call multiple tools in a single response. When multiple independent pieces of information are requested, batch your tool calls together for optimal performance. ALWAYS run the following bash commands in parallel using the Bash tool, in order to understand the current state of the branch since it diverged from the main branch:
-   - Run a git status command to see all untracked files
-   - Run a git diff command to see both staged and unstaged changes that will be committed
-   - Check if the current branch tracks a remote branch and is up to date with the remote, so you know if you need to push to the remote
-   - Run a git log command and `git diff main...HEAD` (or master...HEAD) to understand the full commit history for the current branch (from the time it diverged from the `main` branch)
-2. Analyze all changes that will be included in the pull request, making sure to look at all relevant commits (NOT just the latest commit, but ALL commits that will be included in the pull request!!!), and draft a pull request summary
-3. You have the capability to call multiple tools in a single response. When multiple independent pieces of information are requested, batch your tool calls together for optimal performance. ALWAYS run the following commands in parallel:
-   - Create new branch if needed
-   - Push to remote with -u flag if needed
-   - Create PR using gh pr create with the format below. Use a HEREDOC to pass the body to ensure correct formatting.
-<example>
-  
-```
-gh pr create --title "the pr title" --body "$(cat <<'EOF'
-## Summary
-<1-3 bullet points>
+- **`type`**: Include file types using ripgrep's built-in types (e.g., `["rust", "python", "javascript"]`)
 
-#### Test plan
-[Checklist of TODOs for testing the pull request...]
+- **`type_not`**: Exclude file types (e.g., `["test", "json", "minified"]`)
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
-EOF
-)"
-```
-  
-</example>
+- **`multiline`** (default: false): Enable multiline pattern matching (rg --multiline)
+  - Allows patterns to span multiple lines
+  - Makes `.` match newlines
+  - Essential for structural code analysis
 
-Important:
-- NEVER update the git config
-- DO NOT use the TodoWrite or Task tools
-- Return the PR URL when you're done, so the user can see it
+- **`only_matching`**: Return only matched text, not entire lines (rg -o)
+  - Perfect for extracting URLs, function names, version numbers, emails
 
-### Other common operations
-- View comments on a Github PR: `gh api repos/foo/bar/pulls/123/comments`
+- **`max_depth`**: Limit directory traversal depth
+  - Essential for performance in monorepos
+  - Example: `max_depth: 3` avoids deep node_modules/vendor/target
+  - Can provide 10-25x speedup
+
+- **`max_filesize`**: Skip files larger than N bytes
+  - Recommended: 1048576 (1MB) to skip minified bundles and lock files
+  - Can provide 10-30x speedup by avoiding huge files
+
+- **`context`**: Lines of context around matches (sets both before/after)
+- **`before_context`**, **`after_context`**: Fine-grained context control
+- **`invert_match`**: Show lines/files that DON'T match (rg --invert-match)
+- **`no_ignore`**: Disable .gitignore/.ignore files
+- **`include_hidden`**: Include hidden files (starting with .)
+- **`encoding`**: Text encoding (default: "auto") - supports utf8, utf16le, latin1, shiftjis, etc.
+
+## Performance Tips
+
+For large codebases, combine:
+- `max_depth: 3-4` to avoid deep dependency trees
+- `max_filesize: 1048576` (1MB) to skip huge bundles/locks
+- `type: ["rust"]` or `file_pattern: "*.rs"` to target specific files
+- Result: 10-100x faster searches
+
+## Examples
 
 ```typescript
-{
-  // The command to execute
-  command: string;
-  // Optional timeout in milliseconds (max 600000)
-  timeout?: number;
-  //  Clear, concise description of what this command does in 5-10 words. Examples:
-  // Input: ls
-  // Output: Lists files in current directory
-  //
-  // Input: git status
-  // Output: Shows working tree status
-  //
-  // Input: npm install
-  // Output: Installs package dependencies
-  //
-  // Input: mkdir foo
-  // Output: Creates directory 'foo'
-  description?: string;
-}
+// Find specific file
+{path: "/project", pattern: "package.json", search_in: "filenames"}
+
+// Find TODO comments in TypeScript
+{path: "/project", pattern: "TODO", file_pattern: "*.ts"}
+
+// Find exact code (with special chars)
+{path: "/project", pattern: "toast.error('test')", literal_search: true}
+
+// Get list of files containing "error"
+{path: "/project", pattern: "error", return_only: "paths"}
+
+// Find whole word "test" (not "testing")
+{path: "/project", pattern: "test", boundary_mode: "word"}
+
+// Fast search in large monorepo
+{path: "/project", pattern: "config", max_depth: 3, max_filesize: 1048576}
 ```
 
-# Glob
-- Fast file pattern matching tool that works with any codebase size
-- Supports glob patterns like "**/*.js" or "src/**/*.ts"
-- Returns matching file paths sorted by modification time
-- Use this tool when you need to find files by name patterns
-- When you are doing an open ended search that may require multiple rounds of globbing and grepping, use the Agent tool instead
-- You have the capability to call multiple tools in a single response. It is always better to speculatively perform multiple searches as a batch that are potentially useful.
+# mcp__kodegen__fs_list_directory
+
+List all files and directories in a specified path. Returns entries prefixed with [DIR] or [FILE] to distinguish types. Results are sorted alphabetically.
+
+## Parameters
+
+**Required:**
+- `path` (string): The absolute path to the directory to list
+
+**Optional:**
+- `include_hidden` (boolean, default: false): Include hidden files and directories (starting with `.`)
+
+## Usage Notes
+
+- Automatically validates that the directory path exists
+- Hidden files (starting with `.`) are filtered by default
+- Provides counts of directories and files
+- Handles permission errors gracefully
+- Results are sorted alphabetically for consistent output
+- Returns both human-readable summary and machine-parseable JSON
+
+## Output Format
+
+Directories are prefixed with `[DIR]`
+Files are prefixed with `[FILE]`
+
+Example output:
+```
+[DIR]  src
+[DIR]  tests
+[FILE] Cargo.toml
+[FILE] README.md
+```
+
+## Examples
 
 ```typescript
-{
-  // The glob pattern to match files against
-  pattern: string;
-  // The directory to search in. If not specified, the current working directory will be used. IMPORTANT: Omit this field to use the default directory. DO NOT enter "undefined" or "null" - simply omit it for the default behavior. Must be a valid directory path if provided.
-  path?: string;
-}
+// Basic usage
+{path: "/path/to/directory"}
+
+// Include hidden files
+{path: "/path/to/directory", include_hidden: true}
+
+// List current project
+{path: "/Users/davidmaple/kodegen-workspace"}
 ```
 
-# Grep
+## When to Use
 
-- Fast content search tool that works with any codebase size
-- Searches file contents using regular expressions
-- Supports full regex syntax (eg. "log.*Error", "function\s+\w+", etc.)
-- Filter files by pattern with the include parameter (eg. "*.js", "*.{ts,tsx}")
-- Returns file paths with at least one match sorted by modification time
-- Use this tool when you need to find files containing specific patterns
-- If you need to identify/count the number of matches within files, use the Bash tool with `rg` (ripgrep) directly. Do NOT use `grep`.
-- When you are doing an open ended search that may require multiple rounds of globbing and grepping, use the Agent tool instead
-
-
-```typescript
-{
-  // The regular expression pattern to search for in file contents
-  pattern: string;
-  // The directory to search in. Defaults to the current working directory.
-  path?: string;
-  // File pattern to include in the search (e.g. "*.js", "*.{ts,tsx}")
-  include?: string;
-}
-```
-
-# LS
-Lists files and directories in a given path. The path parameter must be an absolute path, not a relative path. You can optionally provide an array of glob patterns to ignore with the ignore parameter. You should generally prefer the Glob and Grep tools, if you know which directories to search.
-
-```typescript
-{
-  // The absolute path to the directory to list (must be absolute, not relative)
-  path: string;
-  // List of glob patterns to ignore
-  ignore?: string[];
-}
-```
+- Use this tool to explore directory structure
+- Prefer `fs_start_search` with `search_in: "filenames"` for finding specific files across deep hierarchies
+- Use this for shallow directory exploration (one level only)
 
 # exit_plan_mode
 Use this tool when you are in plan mode and have finished presenting your plan and are ready to code. This will prompt the user to exit plan mode.
@@ -231,32 +258,111 @@ Use this tool when you are in plan mode and have finished presenting your plan a
 }
 ```
 
-# Read
-Reads a file from the local filesystem. You can access any file directly by using this tool.
-Assume this tool is able to read all files on the machine. If the User provides a path to a file assume that path is valid. It is okay to read a file that does not exist; an error will be returned.
+# mcp__kodegen__fs_read_file
 
-Usage:
-- The file_path parameter must be an absolute path, not a relative path
-- By default, it reads up to 2000 lines starting from the beginning of the file
-- You can optionally specify a line offset and limit (especially handy for long files), but it's recommended to read the whole file by not providing these parameters
-- Any lines longer than 2000 characters will be truncated
-- Results are returned using cat -n format, with line numbers starting at 1
-- This tool allows Claude Code to read images (eg PNG, JPG, etc). When reading an image file the contents are presented visually as Claude Code is a multimodal LLM.
-- For Jupyter notebooks (.ipynb files), use the NotebookRead instead
-- You have the capability to call multiple tools in a single response. It is always better to speculatively read multiple files as a batch that are potentially useful. 
-- You will regularly be asked to read screenshots. If the user provides a path to a screenshot ALWAYS use this tool to view the file at the path. This tool will work with all temporary file paths like /var/folders/123/abc/T/TemporaryItems/NSIRD_screencaptureui_ZfB1tD/Screenshot.png
-- If you read a file that exists but has empty contents you will receive a system reminder warning in place of file contents.
+Read the contents of a file from the filesystem or a URL. Supports text files (returned as text) and image files (returned as base64). Automatically validates paths and handles symlinks.
+
+## Parameters
+
+**Required:**
+- `path` (string): Path to the file to read (or URL if reading from web)
+
+**Optional:**
+- `offset` (number, default: 0): Line offset to start reading from (0-based)
+  - Positive: Start from line N (0-based indexing)
+  - Negative: Read last N lines from end (tail behavior, e.g., -100 reads last 100 lines)
+- `length` (number, default: null): Maximum number of lines to read
+  - Ignored when offset is negative (tail mode reads all requested lines)
+- `is_url` (boolean, default: false): Whether the path is a URL (auto-detected for http:// and https://)
+
+## Usage Notes
+
+- Automatically validates that the file path exists
+- Supports reading from URLs (http:// and https://)
+- Handles text files, image files (PNG, JPG, GIF, WebP), and binary files
+- Images are returned as base64 and displayed visually
+- For large files, use `offset` and `length` to read specific portions
+- Negative offsets enable tail behavior: `offset: -100` reads last 100 lines
+- When `offset` is negative, `length` parameter is ignored
+- Returns both human-readable summary and full content
+- Automatically handles symlinks
+
+## Examples
 
 ```typescript
-{
-  // The absolute path to the file to read
-  file_path: string;
-  // The line number to start reading from. Only provide if the file is too large to read at once
-  offset?: number;
-  // The number of lines to read. Only provide if the file is too large to read at once.
-  limit?: number;
-}
+// Read entire file
+{path: "/path/to/file.txt"}
+
+// Read first 100 lines
+{path: "/path/to/large-file.log", offset: 0, length: 100}
+
+// Read last 50 lines (tail)
+{path: "/path/to/file.log", offset: -50}
+
+// Read from URL
+{path: "https://example.com/data.json", is_url: true}
+
+// Read lines 100-199
+{path: "/path/to/file.txt", offset: 100, length: 100}
+
+// Read image file
+{path: "/path/to/screenshot.png"}
 ```
+
+## When to Use
+
+- Use this for reading single files
+- For reading multiple files, use `mcp__kodegen__fs_read_multiple_files` (faster via parallel execution)
+- Supports both local files and URLs
+- Ideal for images, text files, and partial file reading
+
+# mcp__kodegen__fs_read_multiple_files
+
+Read multiple files in parallel. Returns results for all files, including errors for individual files that fail. Supports offset and length parameters applied to all files.
+
+## Parameters
+
+**Required:**
+- `paths` (string[]): Array of file paths to read
+
+**Optional:**
+- `offset` (number, default: 0): Line offset to start reading from (0-based, applied to all files)
+  - Positive: Start from line N (0-based indexing)
+  - Negative: Read last N lines from end (tail behavior)
+- `length` (number, default: null): Maximum number of lines to read per file
+  - Ignored when offset is negative
+
+## Usage Notes
+
+- Reads all files in parallel for maximum performance
+- Returns results for all files, even if some fail
+- Failed reads include error messages but don't stop other files from being read
+- Automatically validates all paths
+- Supports text files and images
+- Same offset and length parameters apply to all files
+- Negative offsets enable tail behavior across all files
+- Returns summary of successful vs failed reads
+
+## Examples
+
+```typescript
+// Read multiple files
+{paths: ["/path/to/file1.txt", "/path/to/file2.txt", "/path/to/file3.txt"]}
+
+// Read first 50 lines from multiple files
+{paths: ["/src/main.rs", "/src/lib.rs"], offset: 0, length: 50}
+
+// Read last 100 lines from multiple log files
+{paths: ["/var/log/app.log", "/var/log/error.log"], offset: -100}
+```
+
+## When to Use
+
+- Use this when reading 2 or more files (faster than multiple single reads)
+- Ideal for batch file operations
+- Handles partial failures gracefully
+- Parallel execution provides significant performance benefits
+- Use `mcp__kodegen__fs_read_file` for single files or when each file needs different offset/length
 
 # Edit
 Performs exact string replacements in files. 
@@ -282,84 +388,119 @@ Usage:
 }
 ```
 
-# MultiEdit
-This is a tool for making multiple edits to a single file in one operation. It is built on top of the Edit tool and allows you to perform multiple find-and-replace operations efficiently. Prefer this tool over the Edit tool when you need to make multiple edits to the same file.
+# mcp__kodegen__fs_write_file
 
-Before using this tool:
+Write or append to file contents. Supports two modes: 'rewrite' (overwrite entire file) and 'append' (add to end of file). Automatically validates paths and creates parent directories if needed.
 
-1. Use the Read tool to understand the file's contents and context
-2. Verify the directory path is correct
+## Parameters
 
-To make multiple file edits, provide the following:
-1. file_path: The absolute path to the file to modify (must be absolute, not relative)
-2. edits: An array of edit operations to perform, where each edit contains:
-   - old_string: The text to replace (must match the file contents exactly, including all whitespace and indentation)
-   - new_string: The edited text to replace the old_string
-   - replace_all: Replace all occurences of old_string. This parameter is optional and defaults to false.
+**Required:**
+- `path` (string): Path to the file to write
+- `content` (string): Content to write to the file
 
-IMPORTANT:
-- All edits are applied in sequence, in the order they are provided
-- Each edit operates on the result of the previous edit
-- All edits must be valid for the operation to succeed - if any edit fails, none will be applied
-- This tool is ideal when you need to make several changes to different parts of the same file
-- For Jupyter notebooks (.ipynb files), use the NotebookEdit instead
+**Optional:**
+- `mode` (string, default: "rewrite"): Write mode
+  - `"rewrite"`: Overwrite entire file (default)
+  - `"append"`: Add content to end of file
 
-CRITICAL REQUIREMENTS:
-1. All edits follow the same requirements as the single Edit tool
-2. The edits are atomic - either all succeed or none are applied
-3. Plan your edits carefully to avoid conflicts between sequential operations
+## Usage Notes
 
-WARNING:
-- The tool will fail if edits.old_string doesn't match the file contents exactly (including whitespace)
-- The tool will fail if edits.old_string and edits.new_string are the same
-- Since edits are applied in sequence, ensure that earlier edits don't affect the text that later edits are trying to find
+- Automatically validates the file path
+- Creates parent directories if they don't exist
+- In `rewrite` mode, completely replaces file contents
+- In `append` mode, adds content to the end of the file
+- Returns summary with bytes written, line count, and mode used
+- Destructive operation - cannot be undone
 
-When making edits:
-- Ensure all edits result in idiomatic, correct code
-- Do not leave the code in a broken state
-- Always use absolute file paths (starting with /)
-- Only use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.
-- Use replace_all for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.
-
-If you want to create a new file, use:
-- A new file path, including dir name if needed
-- First edit: empty old_string and the new file's contents as new_string
-- Subsequent edits: normal edit operations on the created content
+## Examples
 
 ```typescript
+// Create or overwrite file
+{path: "/path/to/file.txt", content: "Hello, world!"}
+
+// Append to existing file
+{path: "/path/to/log.txt", content: "\nNew log entry", mode: "append"}
+
+// Create file with parent directories
+{path: "/new/nested/path/file.txt", content: "Content"}
+```
+
+## When to Use
+
+- Use for creating new files
+- Use for completely rewriting existing files
+- Use append mode for adding to logs or data files
+- For precise edits to existing files, use `mcp__kodegen__fs_edit_block` instead
+
+# mcp__kodegen__fs_edit_block
+
+Apply surgical text replacements to files. Takes old_string and new_string, and performs exact string replacement. By default replaces one occurrence. To replace multiple, set expected_replacements.
+
+## Parameters
+
+**Required:**
+- `file_path` (string): Path to the file to edit
+- `old_string` (string): The exact string to search for and replace
+- `new_string` (string): The replacement string
+
+**Optional:**
+- `expected_replacements` (number, default: 1): Expected number of replacements
+  - Default is 1 (ensures unique match)
+  - Set to higher number to replace multiple occurrences
+  - Tool warns if actual count doesn't match expected
+
+## Usage Notes
+
+- Performs exact string matching (including whitespace and line endings)
+- Automatically normalizes line endings to match the file's format
+- By default, expects exactly 1 match (fails if 0 or multiple found)
+- Returns error if `old_string` not found
+- Returns warning if actual replacement count doesn't match `expected_replacements`
+- Includes fuzzy matching suggestions when exact match fails
+- Cannot have `old_string` equal to `new_string`
+- Empty `old_string` is not allowed
+- Automatically validates paths
+
+## Examples
+
+```typescript
+// Replace single occurrence (default)
 {
-  // The absolute path to the file to modify
-  file_path: string;
-  // Array of edit operations to perform sequentially on the file
-  edits: {
-    // The text to replace
-    old_string: string;
-    // The text to replace it with
-    new_string: string;
-    // Replace all occurences of old_string (default false).
-    replace_all?: boolean;
-  }[];
+  file_path: "/path/to/file.rs",
+  old_string: "fn old_name() {",
+  new_string: "fn new_name() {"
+}
+
+// Replace all occurrences of a variable
+{
+  file_path: "/path/to/file.rs",
+  old_string: "oldVar",
+  new_string: "newVar",
+  expected_replacements: 5
+}
+
+// Replace multi-line block
+{
+  file_path: "/path/to/file.rs",
+  old_string: "pub struct Config {\n    port: u16,\n}",
+  new_string: "pub struct Config {\n    port: u16,\n    host: String,\n}"
 }
 ```
 
-# Write
-Writes a file to the local filesystem.
+## Best Practices
 
-Usage:
-- This tool will overwrite the existing file if there is one at the provided path.
-- If this is an existing file, you MUST use the Read tool first to read the file's contents. This tool will fail if you did not read the file first.
-- ALWAYS prefer editing existing files in the codebase. NEVER write new files unless explicitly required.
-- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-- Only use emojis if the user explicitly requests it. Avoid writing emojis to files unless asked.
+- Include enough context in `old_string` to make it unique
+- Match whitespace and indentation exactly as it appears in the file
+- For renaming variables across entire file, use higher `expected_replacements`
+- Use `fs_read_file` first to see the exact content before editing
+- Break large edits into smaller, focused replacements
 
-```typescript
-{
-  // The absolute path to the file to write (must be absolute, not relative)
-  file_path: string;
-  // The content to write to the file
-  content: string;
-}
-```
+## When to Use
+
+- Use for precise, surgical edits to existing files
+- Ideal for renaming functions, variables, or updating specific code blocks
+- Use instead of `fs_write_file` when you need to modify part of a file
+- Preferred over complete file rewrites for maintainability
 
 # NotebookRead
 Reads a Jupyter notebook (.ipynb file) and returns all of the cells with their outputs. Jupyter notebooks are interactive documents that combine code, text, and visualizations, commonly used for data analysis and scientific computing. The notebook_path parameter must be an absolute path, not a relative path.
@@ -368,52 +509,6 @@ Reads a Jupyter notebook (.ipynb file) and returns all of the cells with their o
 {
   // The absolute path to the Jupyter notebook file to read (must be absolute, not relative)
 	notebook_path: string;
-}
-```
-
-# NotebookEdit
-Completely replaces the contents of a specific cell in a Jupyter notebook (.ipynb file) with new source. Jupyter notebooks are interactive documents that combine code, text, and visualizations, commonly used for data analysis and scientific computing. The notebook_path parameter must be an absolute path, not a relative path. The cell_number is 0-indexed. Use edit_mode=insert to add a new cell at the index specified by cell_number. Use edit_mode=delete to delete the cell at the index specified by cell_number.
-
-```typescript
-{
-  // The absolute path to the Jupyter notebook file to edit (must be absolute, not relative)
-  notebook_path: string;
-  // The index of the cell to edit (0-based)
-  cell_number: number;
-  // The new source for the cell
-  new_source: string;
-  // The type of the cell (code or markdown). If not specified, it defaults to the current cell type. If using edit_mode=insert, this is required.
-  cell_type?: "code" | "markdown";
-  // The type of edit to make (replace, insert, delete). Defaults to replace.
-  edit_mode?: "replace" | "insert" | "delete";
-}
-```
-
-# WebFetch
-
-- Fetches content from a specified URL and processes it using an AI model
-- Takes a URL and a prompt as input
-- Fetches the URL content, converts HTML to markdown
-- Processes the content with the prompt using a small, fast model
-- Returns the model's response about the content
-- Use this tool when you need to retrieve and analyze web content
-
-Usage notes:
-  - IMPORTANT: If an MCP-provided web fetch tool is available, prefer using that tool instead of this one, as it may have fewer restrictions. All MCP-provided tools start with "mcp__".
-  - The URL must be a fully-formed valid URL
-  - HTTP URLs will be automatically upgraded to HTTPS
-  - The prompt should describe what information you want to extract from the page
-  - This tool is read-only and does not modify any files
-  - Results may be summarized if the content is very large
-  - Includes a self-cleaning 15-minute cache for faster responses when repeatedly accessing the same URL
-
-
-```typescript
-{
-  // The URL to fetch content from
-  url: string;
-  // The prompt to run on the fetched content
-  prompt: string;
 }
 ```
 
@@ -631,26 +726,524 @@ When in doubt, use this tool. Being proactive with task management demonstrates 
 }
 ```
 
-# WebSearch
+# mcp__kodegen__browser_web_search
 
-- Allows Claude to search the web and use the results to inform responses
-- Provides up-to-date information for current events and recent data
-- Returns search result information formatted as search result blocks
-- Use this tool for accessing information beyond Claude's knowledge cutoff
-- Searches are performed automatically within a single API call
+⚡ Fast web search using DuckDuckGo with browser automation. Returns up to 10 structured search results with titles, URLs, and snippets.
 
-Usage notes:
-  - Domain filtering is supported to include or block specific websites
-  - Web search is only available in the US
+## Parameters
 
+**Required:**
+- `query` (string): Search query string
+
+## What It Does
+
+Uses Chromium browser with stealth injection to perform DuckDuckGo searches and extract structured results. Designed for speed and simplicity.
+
+## Performance
+
+- **First search**: ~5-6 seconds (browser launch)
+- **Subsequent searches**: ~3-4 seconds
+- **Results**: Up to 10 results per search
+- **Rate limit**: None (uses browser automation)
+
+## Output Format
+
+Returns array of search results, each containing:
+- `rank`: Result position (1-10)
+- `title`: Page title
+- `url`: Page URL
+- `snippet`: Description excerpt
+
+## Examples
 
 ```typescript
+// Basic search
+{query: "rust async programming"}
+
+// Find documentation
+{query: "tokio async runtime documentation"}
+
+// Current events
+{query: "latest rust release features"}
+```
+
+## Pros
+
+✅ Fast - 3-4 seconds for results  
+✅ No CAPTCHA issues (stealth browser)  
+✅ Simple - just query in, results out  
+✅ Structured data ready for parsing  
+✅ Good for quick lookups and URL discovery
+
+## Cons
+
+❌ Shallow - only top 10 search results  
+❌ No content analysis - just titles/snippets  
+❌ No page crawling or deep research  
+❌ Browser overhead on first use  
+❌ Single search engine (DuckDuckGo)
+
+## When to Use
+
+**Use `browser_web_search` when:**
+- You need quick search results (under 5 seconds)
+- You want to find URLs for specific topics
+- You need titles and snippets to identify relevant pages
+- You're building a list of resources to investigate
+- Speed is more important than depth
+
+**Don't use `browser_web_search` when:**
+- You need detailed content from pages (use `browser_start_research`)
+- You want to crawl an entire website (use `scrape_url`)
+- You need AI-generated summaries of content
+- You want to save content for offline use
+
+# mcp__kodegen__browser_start_research
+
+🔬 Async deep research that searches the web, crawls multiple pages, and generates AI summaries. Runs in background, returns session_id for polling.
+
+## Parameters
+
+**Required:**
+- `query` (string): Research query or topic to investigate
+
+**Optional:**
+- `max_pages` (number, default: 5): Maximum pages to visit
+- `max_depth` (number, default: 2): Maximum link-following depth
+- `search_engine` (string, default: "google"): Search engine - "google", "bing", or "duckduckgo"
+- `include_links` (boolean, default: true): Include hyperlinks in content extraction
+- `extract_tables` (boolean, default: true): Extract and parse HTML tables
+- `extract_images` (boolean, default: false): Extract image URLs and alt text
+- `timeout_seconds` (number, default: 60): Timeout per page navigation
+- `temperature` (number, default: 0.5): LLM temperature for summarization (0.0-2.0)
+- `max_tokens` (number, default: 2048): Maximum tokens for LLM summary generation
+
+## What It Does
+
+1. Performs web search for your query
+2. Crawls top N pages from search results
+3. Follows links up to max_depth levels
+4. Extracts content, tables, links from each page
+5. Uses LLM to generate summaries and analyze findings
+6. Returns comprehensive research report with sources
+
+## Performance
+
+- **Duration**: 2-5 minutes (background execution)
+- **Pages analyzed**: Configurable (default: 5)
+- **Depth**: Configurable (default: 2 levels)
+- **Returns immediately**: Get session_id, poll for status
+
+## Workflow
+
+```typescript
+// 1. Start research (returns immediately with session_id)
+{query: "Rust async best practices", max_pages: 5}
+// → Returns: {session_id: "abc-123..."}
+
+// 2. Check status (poll every 10-30 seconds)
+browser_get_research_status({session_id: "abc-123..."})
+// → Returns: {status: "running", pages_visited: 3, runtime: 45}
+
+// 3. Get final results (when status = "completed")
+browser_get_research_result({session_id: "abc-123..."})
+// → Returns: {summary, key_findings, sources[], page_summaries[]}
+
+// 4. List all sessions
+browser_list_research_sessions()
+// → Returns: [{session_id, query, status, runtime}...]
+
+// 5. Cancel if needed
+browser_stop_research({session_id: "abc-123..."})
+```
+
+## Output Format
+
+When complete, returns:
+- `summary`: Overall research summary
+- `key_findings`: Important discoveries
+- `sources`: Array of URLs visited
+- `page_summaries`: Individual page analyses with:
+  - `url`: Page URL
+  - `title`: Page title
+  - `summary`: AI-generated summary
+  - `tables`: Extracted table data (if any)
+  - `links`: Related links found
+
+## Examples
+
+```typescript
+// Deep research on specific topic
+{query: "Rust ownership and borrowing best practices", max_pages: 10, max_depth: 3}
+
+// Quick focused research
+{query: "tokio vs async-std comparison", max_pages: 3, max_depth: 1}
+
+// Research with table extraction
+{query: "Rust web framework performance benchmarks", extract_tables: true}
+
+// Research with custom LLM settings
+{query: "advanced async patterns", temperature: 0.3, max_tokens: 4096}
+```
+
+## Pros
+
+✅ Deep analysis - crawls multiple pages  
+✅ AI summaries - LLM-generated insights  
+✅ Non-blocking - runs in background  
+✅ Comprehensive - follows links, extracts tables  
+✅ Flexible - configurable depth, pages, search engine  
+✅ Source tracking - all URLs documented
+
+## Cons
+
+❌ Slow - 2-5 minutes to complete  
+❌ Complex - requires polling for results  
+❌ Resource intensive - browser + LLM + crawling  
+❌ Not cached - each research is fresh  
+❌ Limited pages - practical limit ~10-20 pages
+
+## When to Use
+
+**Use `browser_start_research` when:**
+- You need comprehensive analysis of a topic
+- You want AI-generated summaries of web content
+- You need to analyze multiple related pages
+- You're researching documentation across sites
+- You want extracted tables and structured data
+- Time (2-5 min) is acceptable for quality results
+
+**Don't use `browser_start_research` when:**
+- You need instant results (use `browser_web_search`)
+- You want to crawl entire website (use `scrape_url`)
+- You need offline access or full-text search
+- You're researching a single specific page
+
+# mcp__kodegen__scrape_url
+
+🕷️ Full website crawler with Tantivy full-text search indexing. Crawls entire sites, saves to disk, builds searchable knowledge base.
+
+## Parameters
+
+**Required:**
+- `url` (string): Target URL to crawl
+
+**Optional:**
+- `output_dir` (string): Output directory for crawled content (default: auto-generated)
+- `max_depth` (number, default: 3): Maximum crawl depth
+- `limit` (number): Maximum pages to crawl (default: unbounded)
+- `save_markdown` (boolean, default: true): Save markdown format
+- `save_screenshots` (boolean, default: false): Save screenshots (slow)
+- `enable_search` (boolean, default: true): Build Tantivy search index
+- `crawl_rate_rps` (number, default: 2.0): Requests per second rate limit
+- `allow_subdomains` (boolean, default: false): Allow subdomain crawling
+- `content_types` (array): Content types to generate (e.g., ["markdown", "html", "json"])
+
+## What It Does
+
+1. Crawls target website respecting robots.txt
+2. Saves pages as markdown/HTML/JSON files
+3. Optionally captures screenshots
+4. Builds Tantivy full-text search index
+5. Runs in background, poll for completion
+6. Creates searchable offline knowledge base
+
+## Performance
+
+- **Duration**: Minutes to hours (depends on site size)
+- **Rate**: 2 requests/second (default, configurable)
+- **Storage**: Pages saved to disk
+- **Search**: Tantivy index for instant full-text search
+- **Returns immediately**: Get crawl_id, poll for status
+
+## Workflow
+
+```typescript
+// 1. Start crawl (returns immediately with crawl_id)
+{url: "https://docs.rs/tokio", max_depth: 4, enable_search: true}
+// → Returns: {crawl_id: "xyz-789...", output_dir: "/path/to/output"}
+
+// 2. Check status (poll periodically)
+scrape_check_results({crawl_id: "xyz-789..."})
+// → Returns: {status: "running", pages_crawled: 45, runtime: 120}
+
+// 3. Search crawled content (works during and after crawl)
+scrape_search_results({crawl_id: "xyz-789...", query: "async runtime", limit: 10})
+// → Returns: {results: [{title, url, snippet, score}...]}
+
+// 4. Access files directly
+// Files saved to: output_dir/pages/*.md, output_dir/pages/*.html
+```
+
+## Output Format
+
+Creates directory structure:
+```
+output_dir/
+├── pages/
+│   ├── page1.md
+│   ├── page1.html
+│   └── ...
+├── .search_index/
+│   └── (Tantivy index files)
+└── manifest.json (crawl metadata)
+```
+
+Search results include:
+- `title`: Page title
+- `url`: Page URL  
+- `snippet`: Highlighted excerpt
+- `score`: Relevance score
+- `path`: File path
+
+## Examples
+
+```typescript
+// Crawl documentation site
+{url: "https://docs.rs/tokio", max_depth: 4, save_markdown: true}
+
+// Limited crawl with screenshots
+{url: "https://example.com", limit: 100, save_screenshots: true, crawl_rate_rps: 1.0}
+
+// Multi-format output
+{url: "https://blog.example.com", content_types: ["markdown", "html", "json"]}
+
+// Subdomain crawling
+{url: "https://example.com", allow_subdomains: true, max_depth: 3}
+```
+
+## Pros
+
+✅ Complete - crawls entire websites  
+✅ Persistent - saves to disk for offline use  
+✅ Searchable - Tantivy full-text search index  
+✅ Flexible - markdown, HTML, JSON, screenshots  
+✅ Respectful - follows robots.txt, rate limiting  
+✅ Resumable - can continue interrupted crawls  
+✅ Fast search - instant full-text queries on crawled content
+
+## Cons
+
+❌ Very slow - can take hours for large sites  
+❌ Storage heavy - saves all pages to disk  
+❌ No AI analysis - just saves raw content  
+❌ Complex setup - requires managing output directory  
+❌ Background only - must poll for completion  
+❌ No deduplication - may save similar pages
+
+## When to Use
+
+**Use `scrape_url` when:**
+- You want to crawl an entire documentation site
+- You need offline access to web content
+- You want full-text search across a website
+- You're building a knowledge base or archive
+- You need to save content in multiple formats
+- You want persistent storage for repeated access
+
+**Don't use `scrape_url` when:**
+- You need instant results (use `browser_web_search`)
+- You want AI-powered analysis (use `browser_start_research`)
+- You only need a few specific pages
+- You don't have disk space for large crawls
+- You need real-time content (pages become stale)
+
+# Tool Selection Guide
+
+**Quick Decision Tree:**
+
+```
+Need instant results (< 5s)?
+└─> browser_web_search (10 search results, titles/URLs/snippets)
+
+Need AI analysis of content (2-5 min)?
+└─> browser_start_research (summaries, key findings, multi-page crawl)
+
+Need entire website saved locally (minutes to hours)?
+└─> scrape_url (full crawl, offline access, searchable index)
+```
+
+**By Use Case:**
+
+| Use Case | Tool | Why |
+|----------|------|-----|
+| Find URLs for a topic | `browser_web_search` | Fast, simple, structured results |
+| Research best practices | `browser_start_research` | AI summaries, multi-page analysis |
+| Archive documentation | `scrape_url` | Complete crawl, offline, searchable |
+| Quick fact checking | `browser_web_search` | Instant search results |
+| Compare technologies | `browser_start_research` | Deep analysis across sources |
+| Build knowledge base | `scrape_url` | Persistent storage, full-text search |
+| Current events lookup | `browser_web_search` | Fast, recent results |
+| Topic deep dive | `browser_start_research` | Comprehensive with AI insights |
+| Offline docs access | `scrape_url` | Complete site saved locally |
+
+# mcp__kodegen__sequential_thinking
+
+💭 Step-by-step reasoning tool that tracks your thought process, allows revisions, branching, and dynamic planning. Maintains context across multiple thinking steps.
+
+## Parameters
+
+**Required:**
+- `thought` (string): Your current thinking step
+- `thought_number` (number, minimum: 1): Current thought number (1-based)
+- `total_thoughts` (number, minimum: 1): Estimated total thoughts needed
+- `next_thought_needed` (boolean): Whether another thought step is needed
+
+**Optional:**
+- `session_id` (string): Session ID for maintaining state across calls (auto-generated if not provided)
+- `is_revision` (boolean): Whether this revises previous thinking
+- `revises_thought` (number): Which thought number is being reconsidered
+- `branch_from_thought` (number): Branching point thought number
+- `branch_id` (string): Branch identifier
+- `needs_more_thoughts` (boolean): If more thoughts are needed beyond total_thoughts
+
+## What It Does
+
+Tracks your complete reasoning process through a series of thoughts, allowing you to:
+- Break down complex problems into manageable steps
+- Revise earlier thoughts when you discover new information
+- Branch to explore multiple solution paths in parallel
+- Adjust your plan dynamically as understanding deepens
+- Maintain context and history across all thinking steps
+
+Each call records one thought and returns your progress (thought N/M), branches, and complete history length.
+
+## Key Features
+
+✅ **Dynamic planning** - Adjust `total_thoughts` up or down as you learn  
+✅ **Revision support** - Mark thoughts that reconsider earlier steps  
+✅ **Branching** - Explore alternative approaches from any thought  
+✅ **Context preservation** - Complete history maintained across calls  
+✅ **Non-linear thinking** - Not every thought needs to build sequentially  
+✅ **Session-based** - Multiple independent reasoning sessions
+
+## Workflow
+
+```typescript
+// 1. Start reasoning (initial estimate)
 {
-  // The search query to use
-  query: string;
-  // Only include search results from these domains
-  allowed_domains?: string[];
-  // Never include search results from these domains
-  blocked_domains?: string[];
+  thought: "First, I need to understand the problem scope",
+  thought_number: 1,
+  total_thoughts: 5,
+  next_thought_needed: true
 }
+// → Returns: session_id, thought 1/5 recorded
+
+// 2. Continue building
+{
+  thought: "Now analyzing the core requirements",
+  thought_number: 2,
+  total_thoughts: 5,
+  next_thought_needed: true
+}
+// → Returns: thought 2/5 recorded
+
+// 3. Revise when needed
+{
+  thought: "Wait, I need to reconsider my approach from thought 2",
+  thought_number: 3,
+  total_thoughts: 6,  // Adjusted up
+  is_revision: true,
+  revises_thought: 2,
+  next_thought_needed: true
+}
+// → Returns: thought 3/6 recorded (revision)
+
+// 4. Branch to explore alternatives
+{
+  thought: "Alternative approach using pattern X",
+  thought_number: 4,
+  total_thoughts: 6,
+  branch_from_thought: 2,
+  branch_id: "alt-pattern-x",
+  next_thought_needed: true
+}
+// → Returns: thought 4/6 recorded (branch: alt-pattern-x)
+
+// 5. Conclude
+{
+  thought: "Final solution: implement approach Y because...",
+  thought_number: 6,
+  total_thoughts: 6,
+  next_thought_needed: false  // Done!
+}
+// → Returns: thought 6/6 recorded (complete)
+```
+
+## Output Format
+
+Each call returns:
+- `session_id`: Unique session identifier
+- `thought_number`: Current position (e.g., 3)
+- `total_thoughts`: Estimated total (e.g., 6)
+- `next_thought_needed`: Boolean indicating if more steps needed
+- `branches`: List of active branch IDs
+- `thought_history_length`: Total thoughts recorded so far
+
+## Examples
+
+```typescript
+// Simple linear reasoning
+{thought: "Step 1: Identify requirements", thought_number: 1, total_thoughts: 3, next_thought_needed: true}
+{thought: "Step 2: Design solution", thought_number: 2, total_thoughts: 3, next_thought_needed: true}
+{thought: "Step 3: Validate approach", thought_number: 3, total_thoughts: 3, next_thought_needed: false}
+
+// Dynamic adjustment
+{thought: "Initial analysis shows 5 steps", thought_number: 1, total_thoughts: 5, next_thought_needed: true}
+{thought: "Actually need more depth", thought_number: 2, total_thoughts: 8, next_thought_needed: true}
+
+// Revision pattern
+{thought: "First approach: use algorithm X", thought_number: 1, total_thoughts: 4, next_thought_needed: true}
+{thought: "Testing shows X won't work", thought_number: 2, total_thoughts: 5, next_thought_needed: true}
+{thought: "Revising: algorithm Y is better", thought_number: 3, total_thoughts: 5, is_revision: true, revises_thought: 1, next_thought_needed: true}
+
+// Branching to explore alternatives
+{thought: "Two possible approaches emerged", thought_number: 1, total_thoughts: 6, next_thought_needed: true}
+{thought: "Branch A: optimize for speed", thought_number: 2, total_thoughts: 6, branch_from_thought: 1, branch_id: "speed", next_thought_needed: true}
+{thought: "Branch B: optimize for memory", thought_number: 3, total_thoughts: 6, branch_from_thought: 1, branch_id: "memory", next_thought_needed: true}
+```
+
+## When to Use
+
+**Use `sequential_thinking` when:**
+- Breaking down complex problems into steps
+- Planning with room for revision and course correction
+- Analyzing problems where the full scope isn't clear initially
+- You need to explore multiple solution paths (branching)
+- Context must be maintained across multiple thinking steps
+- The problem requires iterative refinement
+- You want to track your complete reasoning process
+
+**Don't use `sequential_thinking` when:**
+- The problem is trivial and doesn't need multi-step reasoning
+- You're performing a single calculation or lookup
+- The solution is already known and just needs execution
+- You don't need to track or revise your thought process
+
+## Best Practices
+
+1. **Start with reasonable estimate** - Initial `total_thoughts` can be adjusted
+2. **Mark revisions explicitly** - Use `is_revision: true` and `revises_thought` when reconsidering
+3. **Branch for alternatives** - Use `branch_id` to explore multiple paths in parallel
+4. **Be specific in thoughts** - Each thought should represent clear progress
+5. **Conclude properly** - Set `next_thought_needed: false` when done
+6. **Session reuse** - Pass `session_id` to continue previous reasoning chain
+
+## Comparison to Direct Reasoning
+
+**Without sequential_thinking:**
+```
+"I need to solve X, so I'll do A, then B, then C, done."
+→ No revision capability, no branching, no progress tracking
+```
+
+**With sequential_thinking:**
+```
+Thought 1: Analyze X
+Thought 2: Plan approach A
+Thought 3: Wait, A won't work (revision)
+Thought 4: Try approach B instead
+Branch: Explore optimization C
+Thought 5: B + C is optimal solution
+→ Complete history, revisions tracked, alternatives explored
 ```
