@@ -1,0 +1,135 @@
+{
+  "index_settings": {
+    "docstore_compression": "lz4",
+    "docstore_blocksize": 16384
+  },
+  "segments": [
+    {
+      "segment_id": "57335f02-89d3-4cc5-baf7-2b6cc2f722c2",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "5cf105c7-ad86-4ffd-b224-84dc8f989e31",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "2813e824-3e8f-4e39-b19d-e05047ea2fa6",
+      "max_doc": 1,
+      "deletes": null
+    },
+    {
+      "segment_id": "059d7897-a15a-40ca-bf11-93ecc260fd25",
+      "max_doc": 1,
+      "deletes": null
+    }
+  ],
+  "schema": [
+    {
+      "name": "url",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "path",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "exact_match"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "raw_markdown",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "basic",
+          "fieldnorms": true,
+          "tokenizer": "raw_markdown"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "plain_content",
+      "type": "text",
+      "options": {
+        "indexing": {
+          "record": "position",
+          "fieldnorms": true,
+          "tokenizer": "content_search"
+        },
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "snippet",
+      "type": "text",
+      "options": {
+        "stored": true,
+        "fast": false
+      }
+    },
+    {
+      "name": "crawl_date",
+      "type": "date",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true,
+        "precision": "seconds"
+      }
+    },
+    {
+      "name": "file_size",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    },
+    {
+      "name": "word_count",
+      "type": "u64",
+      "options": {
+        "indexed": true,
+        "fieldnorms": false,
+        "fast": false,
+        "stored": true
+      }
+    }
+  ],
+  "opstamp": 8
+}
