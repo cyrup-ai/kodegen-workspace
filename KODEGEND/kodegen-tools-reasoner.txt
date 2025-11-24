@@ -1,0 +1,28 @@
+===============================================
+Project: kodegen-tools-reasoner
+Date: Thu Nov 20 16:10:43 PST 2025
+===============================================
+
+--- CARGO CHECK ---
+
+    Checking kodegen_mcp_schema v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-mcp-schema)
+    Checking kodegen_config_manager v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-config-manager)
+    Checking kodegen_utils v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-utils)
+    Checking kodegen_server_http v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-server-http)
+    Checking kodegen_tools_git v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-tools-git)
+    Checking kodegen_candle_agent v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-candle-agent)
+    Checking kodegen_tools_reasoner v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-tools-reasoner)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 40s
+
+--- CARGO CLIPPY ---
+
+    Checking kodegen_mcp_schema v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-mcp-schema)
+    Checking kodegen_utils v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-utils)
+    Checking kodegen_config_manager v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-config-manager)
+    Checking kodegen_server_http v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-server-http)
+    Checking kodegen_tools_git v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-tools-git)
+    Checking kodegen_candle_agent v0.3.0 (/Users/davidmaple/kodegen-workspace/packages/kodegen-candle-agent)
+
+===============================================
+Finished checking kodegen-tools-reasoner
+===============================================

@@ -1,0 +1,19 @@
+{
+  "crawl_id": "aa13a83b-056b-443f-bf8d-1c846e1c1b83",
+  "start_url": "https://docs.sequoia-pgp.org/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.sequoia-pgp.org",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/docs.sequoia-pgp.org/.search_index",
+  "start_time": 1763834136,
+  "end_time": 1763834256,
+  "status": "Completed",
+  "total_pages": 1,
+  "config_summary": {
+    "start_url": "https://docs.sequoia-pgp.org/",
+    "max_depth": 2,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}
