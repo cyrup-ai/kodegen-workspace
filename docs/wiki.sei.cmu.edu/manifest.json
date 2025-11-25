@@ -1,0 +1,19 @@
+{
+  "crawl_id": "baaf1b62-8ed1-45f5-85ea-e582e85c3e4a",
+  "start_url": "https://wiki.sei.cmu.edu/confluence/display/c/FIO45-C.+Avoid+TOCTOU+race+conditions+while+accessing+files",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/wiki.sei.cmu.edu",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/wiki.sei.cmu.edu/.search_index",
+  "start_time": 1764095732,
+  "end_time": 1764096332,
+  "status": "Completed",
+  "total_pages": 7,
+  "config_summary": {
+    "start_url": "https://wiki.sei.cmu.edu/confluence/display/c/FIO45-C.+Avoid+TOCTOU+race+conditions+while+accessing+files",
+    "max_depth": 1,
+    "limit": 5,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}
