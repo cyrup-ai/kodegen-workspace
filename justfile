@@ -4,10 +4,10 @@
 check:
     #!/usr/bin/env bash
     # Note: Don't use 'set -e' so we continue even if individual projects fail
-    
+
     # Create task directory if it doesn't exist
     mkdir -p task
-    
+
     # List of all Rust projects in the workspace
     projects=(
         "cylo"
@@ -38,43 +38,43 @@ check:
         "kodegen-utils"
         "kodegend"
     )
-    
+
     echo "Running cargo check and clippy on all projects..."
     echo "Failed projects will be saved to task/"
     echo ""
-    
+
     failed_projects=()
     succeeded_projects=()
-    
+
     for project in "${projects[@]}"; do
         if [ -d "packages/$project" ] && [ -f "packages/$project/Cargo.toml" ]; then
             echo "Checking $project..."
             output_file="task/${project}.txt"
-            
+
             # Delete old file if it exists (ensures only failures generate files)
             rm -f "$output_file"
-            
+
             # Capture cargo check output (treat warnings as errors)
             check_output=$(cd "packages/$project" && RUSTFLAGS="-D warnings" cargo check 2>&1)
             check_exit=$?
-            
+
             # Capture cargo clippy output (treat warnings as errors)
             clippy_output=$(cd "packages/$project" && cargo clippy -- -D warnings 2>&1)
             clippy_exit=$?
-            
+
             # Determine status
             if [ $check_exit -eq 0 ]; then
                 check_status="✓"
             else
                 check_status="✗"
             fi
-            
+
             if [ $clippy_exit -eq 0 ]; then
                 clippy_status="✓"
             else
                 clippy_status="✗"
             fi
-            
+
             # Only write file if either command failed
             if [ $check_exit -ne 0 ] || [ $clippy_exit -ne 0 ]; then
                 # Create output file with header
@@ -83,24 +83,24 @@ check:
                 echo "Date: $(date)" >> "$output_file"
                 echo "===============================================" >> "$output_file"
                 echo "" >> "$output_file"
-                
+
                 # Write cargo check results
                 echo "--- CARGO CHECK ---" >> "$output_file"
                 echo "" >> "$output_file"
                 echo "$check_output" >> "$output_file"
                 echo "" >> "$output_file"
-                
+
                 # Write cargo clippy results
                 echo "--- CARGO CLIPPY ---" >> "$output_file"
                 echo "" >> "$output_file"
                 echo "$clippy_output" >> "$output_file"
                 echo "" >> "$output_file"
-                
+
                 # Add footer
                 echo "===============================================" >> "$output_file"
                 echo "Finished checking $project" >> "$output_file"
                 echo "===============================================" >> "$output_file"
-                
+
                 echo "  ✗ Failed (check: $check_status, clippy: $clippy_status) - Results saved to $output_file"
                 failed_projects+=("$project")
             else
@@ -111,7 +111,7 @@ check:
             echo "  ⚠ Skipping $project (not found or no Cargo.toml)"
         fi
     done
-    
+
     echo ""
     echo "==============================================="
     echo "Summary"
@@ -119,7 +119,7 @@ check:
     echo "Total projects: ${#projects[@]}"
     echo "Succeeded: ${#succeeded_projects[@]}"
     echo "Failed: ${#failed_projects[@]}"
-    
+
     if [ ${#failed_projects[@]} -gt 0 ]; then
         echo ""
         echo "Failed projects:"
@@ -456,20 +456,20 @@ mcp:
     @sleep 2
     @mkdir -p ./tmp/mcp
     @echo 'Starting new MCP processes ...'
-    @nohup sh -c 'cargo install --force kodegen' > ./tmp/mcp/kodegen.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_browser --force && kodegen-browser --http 127.0.0.1:30438' > ./tmp/mcp/kodegen-browser.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_citescrape --force && kodegen-citescrape --http 127.0.0.1:30439' > ./tmp/mcp/kodegen-citescrape.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_claude_agent --force && kodegen-claude-agent --http 127.0.0.1:30440' > ./tmp/mcp/kodegen-claude-agent.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_config --force && kodegen-config --http 127.0.0.1:30441' > ./tmp/mcp/kodegen-config.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_database --force && kodegen-database --http 127.0.0.1:30442' > ./tmp/mcp/kodegen-database.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_filesystem --force && kodegen-filesystem --http 127.0.0.1:30443' > ./tmp/mcp/kodegen-filesystem.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_git --force && kodegen-git --http 127.0.0.1:30444' > ./tmp/mcp/kodegen-git.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_github --force && kodegen-github --http 127.0.0.1:30445' > ./tmp/mcp/kodegen-github.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_introspection --force && kodegen-introspection --http 127.0.0.1:30446' > ./tmp/mcp/kodegen-introspection.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_process --force && kodegen-process --http 127.0.0.1:30447' > ./tmp/mcp/kodegen-process.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_prompt --force && kodegen-prompt --http 127.0.0.1:30448' > ./tmp/mcp/kodegen-prompt.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_reasoner --force && kodegen-reasoner --http 127.0.0.1:30449' > ./tmp/mcp/kodegen-reasoner.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_sequential_thinking --force && kodegen-sequential-thinking --http 127.0.0.1:30450' > ./tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_tools_terminal --force && kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_candle_agent --force && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen' > ./tmp/mcp/kodegen.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_browser && kodegen-browser --http 127.0.0.1:30438' > ./tmp/mcp/kodegen-browser.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_citescrape && kodegen-citescrape --http 127.0.0.1:30439' > ./tmp/mcp/kodegen-citescrape.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_claude_agent && kodegen-claude-agent --http 127.0.0.1:30440' > ./tmp/mcp/kodegen-claude-agent.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_config && kodegen-config --http 127.0.0.1:30441' > ./tmp/mcp/kodegen-config.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_database && kodegen-database --http 127.0.0.1:30442' > ./tmp/mcp/kodegen-database.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_filesystem && kodegen-filesystem --http 127.0.0.1:30443' > ./tmp/mcp/kodegen-filesystem.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_git && kodegen-git --http 127.0.0.1:30444' > ./tmp/mcp/kodegen-git.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_github && kodegen-github --http 127.0.0.1:30445' > ./tmp/mcp/kodegen-github.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_introspection && kodegen-introspection --http 127.0.0.1:30446' > ./tmp/mcp/kodegen-introspection.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_process && kodegen-process --http 127.0.0.1:30447' > ./tmp/mcp/kodegen-process.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_prompt && kodegen-prompt --http 127.0.0.1:30448' > ./tmp/mcp/kodegen-prompt.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_reasoner && kodegen-reasoner --http 127.0.0.1:30449' > ./tmp/mcp/kodegen-reasoner.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_sequential_thinking && kodegen-sequential-thinking --http 127.0.0.1:30450' > ./tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_tools_terminal && kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
+    @nohup sh -c 'cargo install kodegen_candle_agent && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
     @tail -F ./tmp/mcp/*.log
