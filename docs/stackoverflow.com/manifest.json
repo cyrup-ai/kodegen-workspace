@@ -1,0 +1,19 @@
+{
+  "crawl_id": "0fb7bc35-152f-4969-95a1-3765b5f0dea8",
+  "start_url": "https://stackoverflow.com/questions/75719005/i-am-trying-to-implement-winverifytrust-in-rust-but-facing-issue-in-initializing",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/stackoverflow.com",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/stackoverflow.com/.search_index",
+  "start_time": 1764245935,
+  "end_time": 1764246535,
+  "status": "Completed",
+  "total_pages": 6,
+  "config_summary": {
+    "start_url": "https://stackoverflow.com/questions/75719005/i-am-trying-to-implement-winverifytrust-in-rust-but-facing-issue-in-initializing",
+    "max_depth": 1,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

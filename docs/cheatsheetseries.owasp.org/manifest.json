@@ -1,10 +1,10 @@
 {
-  "crawl_id": "6d8519a7-1c0f-4e0b-89e6-f892cfb4b909",
+  "crawl_id": "10694dc0-2a7c-454e-9f2e-ab2370b222be",
   "start_url": "https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html",
   "output_dir": "/Users/davidmaple/kodegen-workspace/docs/cheatsheetseries.owasp.org",
   "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/cheatsheetseries.owasp.org/.search_index",
-  "start_time": 1764095738,
-  "end_time": 1764096338,
+  "start_time": 1764245918,
+  "end_time": 1764246518,
   "status": "Completed",
   "total_pages": 7,
   "config_summary": {

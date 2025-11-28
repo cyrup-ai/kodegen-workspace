@@ -1,0 +1,19 @@
+{
+  "crawl_id": "2aff57d6-c199-4293-9fc7-7e4ea3b0adbd",
+  "start_url": "https://flatt.tech/research/posts/batbadbut-you-cant-securely-execute-commands-on-windows/",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/flatt.tech",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/flatt.tech/.search_index",
+  "start_time": 1764245318,
+  "end_time": 1764245918,
+  "status": "Completed",
+  "total_pages": 7,
+  "config_summary": {
+    "start_url": "https://flatt.tech/research/posts/batbadbut-you-cant-securely-execute-commands-on-windows/",
+    "max_depth": 1,
+    "limit": 5,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}

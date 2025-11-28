@@ -1,0 +1,19 @@
+{
+  "crawl_id": "9c56453c-7ab0-4a31-b426-553292077197",
+  "start_url": "https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/Security/WinTrust/fn.WinVerifyTrust.html",
+  "output_dir": "/Users/davidmaple/kodegen-workspace/docs/microsoft.github.io",
+  "search_index_dir": "/Users/davidmaple/kodegen-workspace/docs/microsoft.github.io/.search_index",
+  "start_time": 1764245319,
+  "end_time": 1764245919,
+  "status": "Completed",
+  "total_pages": 1,
+  "config_summary": {
+    "start_url": "https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/Security/WinTrust/fn.WinVerifyTrust.html",
+    "max_depth": 2,
+    "limit": null,
+    "save_markdown": true,
+    "save_screenshots": false,
+    "enable_search": true,
+    "crawl_rate_rps": 2.0
+  }
+}
