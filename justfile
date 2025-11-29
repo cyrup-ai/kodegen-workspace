@@ -54,6 +54,9 @@ check:
             # Delete old file if it exists (ensures only failures generate files)
             rm -f "$output_file"
 
+            # cargo update
+            (cd "packages/$project" && cargo update > /dev/null 2>&1) || true
+
             # Capture cargo check output (treat warnings as errors)
             check_output=$(cd "packages/$project" && RUSTFLAGS="-D warnings" cargo check 2>&1)
             check_exit=$?
@@ -138,6 +141,132 @@ list-projects:
     @echo "Rust projects in workspace:"
     @find . -maxdepth 2 -name "Cargo.toml" -not -path "*/target/*" | sed 's|./||' | sed 's|/Cargo.toml||' | sort
 
+# Bump package version and update all workspace dependency references
+bump package_name bump_type="patch":
+    #!/usr/bin/env bash
+    set -e
+
+    package_name="{{ package_name }}"
+    bump_type="{{ bump_type }}"
+
+    # Validate bump type
+    case "$bump_type" in
+        major|minor|patch) ;;
+        *)
+            echo "Error: Invalid bump_type '$bump_type'"
+            echo "Usage: just bump PACKAGE_NAME [major|minor|patch]"
+            exit 1
+            ;;
+    esac
+
+    # Validate package exists
+    if [ ! -d "packages/$package_name" ]; then
+        echo "Error: Package 'packages/$package_name' not found"
+        echo ""
+        echo "Available packages:"
+        ls -1 packages/
+        exit 1
+    fi
+
+    cargo_toml="packages/$package_name/Cargo.toml"
+
+    if [ ! -f "$cargo_toml" ]; then
+        echo "Error: $cargo_toml not found"
+        exit 1
+    fi
+
+    # Extract current version from the package's Cargo.toml
+    # Match the first 'version = "..."' line in the [package] section
+    current_version=$(grep '^version = ' "$cargo_toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
+
+    if [ -z "$current_version" ]; then
+        echo "Error: Could not find version in $cargo_toml"
+        exit 1
+    fi
+
+    echo "Current version: $current_version"
+    echo "Bump type: $bump_type"
+    echo ""
+
+    # Parse version into components
+    IFS='.' read -r major minor patch <<< "$current_version"
+
+    # Bump version based on type
+    case "$bump_type" in
+        major)
+            major=$((major + 1))
+            minor=0
+            patch=0
+            ;;
+        minor)
+            minor=$((minor + 1))
+            patch=0
+            ;;
+        patch)
+            patch=$((patch + 1))
+            ;;
+    esac
+
+    new_version="$major.$minor.$patch"
+    new_dep_version="$major.$minor"
+
+    echo "New version: $new_version"
+    echo "New dependency version: $new_dep_version"
+    echo ""
+
+    # Update the package's own version in its Cargo.toml
+    echo "Updating $cargo_toml..."
+    perl -i -pe "s/^version = \".*\"/version = \"$new_version\"/ if \$. <= 10" "$cargo_toml"
+    echo "  ✓ Updated package version to $new_version"
+    echo ""
+
+    # Convert package name from hyphen to underscore for dependency matching
+    # e.g., "kodegen-mcp-tool" -> "kodegen_mcp_tool"
+    dep_package_name=$(echo "$package_name" | tr '-' '_')
+
+    # Update all dependency references in other packages
+    echo "Updating dependency references to $dep_package_name..."
+
+    updated_count=0
+
+    # Find all Cargo.toml files in the workspace
+    for other_cargo in packages/*/Cargo.toml; do
+        # Skip the package we just updated
+        if [ "$other_cargo" = "$cargo_toml" ]; then
+            continue
+        fi
+
+        # Check if this Cargo.toml has a dependency on our package
+        if grep -q "^${dep_package_name} = " "$other_cargo" || \
+           grep -q "^[[:space:]]*${dep_package_name} = " "$other_cargo"; then
+
+            # Update the version in dependency lines
+            # Handles both:
+            #   kodegen_mcp_tool = { version = "0.3" }
+            #   kodegen_mcp_tool = { version = "0.3", path = "..." }
+            perl -i -pe "s/^(\\s*)${dep_package_name} = \\{ version = \"[^\"]*\"/\$1${dep_package_name} = { version = \"${new_dep_version}\"/" "$other_cargo"
+
+            echo "  ✓ Updated $(basename $(dirname $other_cargo))"
+            updated_count=$((updated_count + 1))
+        fi
+    done
+
+    echo ""
+    if [ $updated_count -eq 0 ]; then
+        echo "No dependent packages found."
+    else
+        echo "Updated $updated_count dependent package(s)."
+    fi
+
+    echo ""
+    echo "✓ Version bump complete!"
+    echo ""
+    echo "Summary:"
+    echo "  Package: $package_name"
+    echo "  Old version: $current_version"
+    echo "  New version: $new_version"
+    echo "  Dependent packages updated: $updated_count"
+
 # Convert workspace dependencies to local path dependencies (version + path)
 dep-local:
     #!/usr/bin/env python3
@@ -147,39 +276,51 @@ dep-local:
     from typing import Dict, Tuple
 
     def find_packages() -> Dict[str, Tuple[Path, str]]:
-        """Find all packages and their versions."""
+        """Find all top-level packages and their versions. Skips nested packages and test fixtures."""
         packages = {}
         packages_dir = Path("packages")
 
         if not packages_dir.exists():
             return packages
 
-        for cargo_toml in packages_dir.rglob("Cargo.toml"):
-            # Skip target and tmp directories - tmp is ONLY for docs, never for dependencies!
-            if "target" in cargo_toml.parts or "tmp" in cargo_toml.parts:
+        # Only process top-level packages (packages/*/Cargo.toml)
+        # This skips nested packages like test fixtures
+        for pkg_dir in sorted(packages_dir.iterdir()):
+            if not pkg_dir.is_dir():
+                continue
+
+            # Skip hidden directories and special directories
+            if pkg_dir.name.startswith('.') or pkg_dir.name in ['target', 'tmp']:
+                continue
+
+            cargo_toml = pkg_dir / "Cargo.toml"
+            if not cargo_toml.exists():
                 continue
 
             pkg_name = None
             pkg_version = None
 
-            with open(cargo_toml, 'r') as f:
-                for line in f:
-                    if pkg_name is None:
-                        match = re.match(r'^\s*name\s*=\s*"([^"]+)"', line)
-                        if match:
-                            pkg_name = match.group(1)
+            try:
+                with open(cargo_toml, 'r') as f:
+                    for line in f:
+                        if pkg_name is None:
+                            match = re.match(r'^\s*name\s*=\s*"([^"]+)"', line)
+                            if match:
+                                pkg_name = match.group(1)
 
-                    if pkg_version is None:
-                        match = re.match(r'^\s*version\s*=\s*"([^"]+)"', line)
-                        if match:
-                            pkg_version = match.group(1)
+                        if pkg_version is None:
+                            match = re.match(r'^\s*version\s*=\s*"([^"]+)"', line)
+                            if match:
+                                pkg_version = match.group(1)
 
-                    if pkg_name and pkg_version:
-                        break
+                        if pkg_name and pkg_version:
+                            break
 
-            if pkg_name:
-                normalized_name = pkg_name.replace("-", "_")
-                packages[normalized_name] = (cargo_toml.parent, pkg_version or "0.0.0")
+                if pkg_name:
+                    normalized_name = pkg_name.replace("-", "_")
+                    packages[normalized_name] = (pkg_dir, pkg_version or "0.0.0")
+            except Exception as e:
+                print(f"  ⚠ Warning: Failed to read {cargo_toml}: {e}")
 
         return packages
 
@@ -275,6 +416,11 @@ dep-local:
 
     # Main execution
     packages = find_packages()
+
+    if not packages:
+        print("No packages found in packages/ directory")
+        exit(0)
+
     updated_count = 0
 
     print("Converting to local path dependencies (version + path)...")
@@ -284,9 +430,12 @@ dep-local:
     for pkg_name, (pkg_path, _) in sorted(packages.items()):
         cargo_toml = pkg_path / "Cargo.toml"
 
-        if process_file(cargo_toml, packages, pkg_path):
-            print(f"  ✓ {pkg_path.name}")
-            updated_count += 1
+        try:
+            if process_file(cargo_toml, packages, pkg_path):
+                print(f"  ✓ {pkg_path.name}")
+                updated_count += 1
+        except Exception as e:
+            print(f"  ✗ Failed to process {pkg_path.name}: {e}")
 
     print()
     if updated_count == 0:
@@ -303,39 +452,51 @@ dep-published:
     from typing import Dict, Tuple
 
     def find_packages() -> Dict[str, Tuple[Path, str]]:
-        """Find all packages and their versions."""
+        """Find all top-level packages and their versions. Skips nested packages and test fixtures."""
         packages = {}
         packages_dir = Path("packages")
 
         if not packages_dir.exists():
             return packages
 
-        for cargo_toml in packages_dir.rglob("Cargo.toml"):
-            # Skip target and tmp directories - tmp is ONLY for docs, never for dependencies!
-            if "target" in cargo_toml.parts or "tmp" in cargo_toml.parts:
+        # Only process top-level packages (packages/*/Cargo.toml)
+        # This skips nested packages like test fixtures
+        for pkg_dir in sorted(packages_dir.iterdir()):
+            if not pkg_dir.is_dir():
+                continue
+
+            # Skip hidden directories and special directories
+            if pkg_dir.name.startswith('.') or pkg_dir.name in ['target', 'tmp']:
+                continue
+
+            cargo_toml = pkg_dir / "Cargo.toml"
+            if not cargo_toml.exists():
                 continue
 
             pkg_name = None
             pkg_version = None
 
-            with open(cargo_toml, 'r') as f:
-                for line in f:
-                    if pkg_name is None:
-                        match = re.match(r'^\s*name\s*=\s*"([^"]+)"', line)
-                        if match:
-                            pkg_name = match.group(1)
+            try:
+                with open(cargo_toml, 'r') as f:
+                    for line in f:
+                        if pkg_name is None:
+                            match = re.match(r'^\s*name\s*=\s*"([^"]+)"', line)
+                            if match:
+                                pkg_name = match.group(1)
 
-                    if pkg_version is None:
-                        match = re.match(r'^\s*version\s*=\s*"([^"]+)"', line)
-                        if match:
-                            pkg_version = match.group(1)
+                        if pkg_version is None:
+                            match = re.match(r'^\s*version\s*=\s*"([^"]+)"', line)
+                            if match:
+                                pkg_version = match.group(1)
 
-                    if pkg_name and pkg_version:
-                        break
+                        if pkg_name and pkg_version:
+                            break
 
-            if pkg_name:
-                normalized_name = pkg_name.replace("-", "_")
-                packages[normalized_name] = (cargo_toml.parent, pkg_version or "0.0.0")
+                if pkg_name:
+                    normalized_name = pkg_name.replace("-", "_")
+                    packages[normalized_name] = (pkg_dir, pkg_version or "0.0.0")
+            except Exception as e:
+                print(f"  ⚠ Warning: Failed to read {cargo_toml}: {e}")
 
         return packages
 
@@ -414,6 +575,11 @@ dep-published:
 
     # Main execution
     packages = find_packages()
+
+    if not packages:
+        print("No packages found in packages/ directory")
+        exit(0)
+
     updated_count = 0
 
     print("Converting to version-only dependencies...")
@@ -423,15 +589,213 @@ dep-published:
     for pkg_name, (pkg_path, _) in sorted(packages.items()):
         cargo_toml = pkg_path / "Cargo.toml"
 
-        if process_file(cargo_toml, packages):
-            print(f"  ✓ {pkg_path.name}")
-            updated_count += 1
+        try:
+            if process_file(cargo_toml, packages):
+                print(f"  ✓ {pkg_path.name}")
+                updated_count += 1
+        except Exception as e:
+            print(f"  ✗ Failed to process {pkg_path.name}: {e}")
 
     print()
     if updated_count == 0:
         print("All dependencies already version-only")
     else:
         print(f"Updated {updated_count} package(s)")
+
+# Publish changed packages to crates.io with version bumping and git tagging
+publish bump_type:
+    #!/usr/bin/env bash
+    set -e
+
+    bump_type="{{ bump_type }}"
+
+    # Validate bump type
+    case "$bump_type" in
+        major|minor|patch) ;;
+        *)
+            echo "Error: Invalid bump_type '$bump_type'"
+            echo "Usage: just publish [major|minor|patch]"
+            exit 1
+            ;;
+    esac
+
+    echo "📦 KODEGEN.ᴀɪ Package Publisher"
+    echo "================================"
+    echo ""
+
+    # Phase 1: Validation
+    echo "Validating workspace..."
+    just dep-local
+    echo "  ✓ Local dependencies configured"
+
+    just check
+    if [ $? -ne 0 ]; then
+        echo "❌ Validation failed - aborting publish"
+        exit 1
+    fi
+    echo "  ✓ All packages pass checks"
+
+    just dep-published
+    echo "  ✓ Switched to published dependencies"
+    echo ""
+
+    # Phase 2: Detect changes
+    echo "Detecting changed packages..."
+
+    changed_packages=()
+
+    for pkg_dir in packages/*; do
+        if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
+            pkg_name=$(basename "$pkg_dir")
+
+            # Check for changes using git status --porcelain
+            if [ -n "$(cd "$pkg_dir" && git status --porcelain 2>/dev/null)" ]; then
+                changed_packages+=("$pkg_name")
+            fi
+        fi
+    done
+
+    if [ ${#changed_packages[@]} -eq 0 ]; then
+        echo "No packages with changes found."
+        echo "Nothing to publish."
+        exit 0
+    fi
+
+    echo "Found ${#changed_packages[@]} package(s) with changes:"
+    for pkg in "${changed_packages[@]}"; do
+        echo "  - $pkg"
+    done
+    echo ""
+
+    # Phase 3: Publish in dependency order
+    echo "Publishing packages in dependency order..."
+    echo ""
+
+    # Hardcoded dependency order (topologically sorted)
+    PUBLISH_ORDER=(
+        # Level 0: Foundation (no internal dependencies)
+        "kodegen-config"
+        "kodegen-mcp-schema"
+        "kodegen-simd"
+        "kgls"
+        "cylo"
+        "kodegen-bundler-autoconfig"
+        "kodegen-bundler-sign"
+
+        # Level 1: Infrastructure layer
+        "kodegen-mcp-tool"
+        "kodegen-mcp-client"
+        "kodegen-utils"
+        "kodegen-config-manager"
+        "kodegen-server-http"
+
+        # Level 2: Individual tool packages
+        "kodegen-tools-process"
+        "kodegen-tools-prompt"
+        "kodegen-tools-config"
+        "kodegen-tools-introspection"
+        "kodegen-tools-sequential-thinking"
+        "kodegen-tools-database"
+        "kodegen-tools-filesystem"
+        "kodegen-tools-git"
+        "kodegen-tools-github"
+        "kodegen-tools-citescrape"
+        "kodegen-tools-terminal"
+
+        # Level 3: Tools with tool dependencies
+        "kodegen-candle-agent"
+        "kodegen-tools-browser"
+        "kodegen-tools-reasoner"
+        "kodegen-claude-agent"
+
+        # Level 4: Applications
+        "kodegen"
+        "kodegen-bundler-bundle"
+        "kodegen-bundler-release"
+
+        # Level 5: Daemon (depends on everything)
+        "kodegend"
+    )
+
+    published_packages=()
+    count=0
+    total=${#changed_packages[@]}
+
+    for package in "${PUBLISH_ORDER[@]}"; do
+        # Check if this package has changes
+        if [[ " ${changed_packages[@]} " =~ " ${package} " ]]; then
+            count=$((count + 1))
+            echo "[${count}/${total}] Publishing ${package}..."
+
+            # Navigate to package
+            cd "packages/${package}"
+
+            # Get current version
+            old_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+
+            # Bump version
+            cd ../..
+            just bump "${package}" "${bump_type}"
+            cd "packages/${package}"
+
+            # Get new version
+            new_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+            echo "  Bumped version: ${old_version} → ${new_version}"
+
+            # Publish to crates.io
+            echo "  Publishing to crates.io..."
+            cargo publish
+
+            if [ $? -ne 0 ]; then
+                echo "  ❌ Failed to publish ${package}"
+                cd ../..
+                exit 1
+            fi
+
+            # Commit package changes
+            git add .
+            git commit -m "v${new_version}"
+
+            # Create annotated git tag
+            git tag -a "${package}@${new_version}" -m "Release ${package} v${new_version}"
+
+            # Push commits and tag
+            git push origin main
+            git push origin "${package}@${new_version}"
+
+            cd ../..
+
+            echo "  ✓ Published ${package}@${new_version}"
+            echo ""
+
+            published_packages+=("${package}@${new_version}")
+        fi
+    done
+
+    # Phase 4: Workspace commit
+    if [ ${#published_packages[@]} -gt 0 ]; then
+        echo "Creating workspace release commit..."
+
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+
+        # Build commit message
+        commit_msg="chore: release packages - ${timestamp}\n\nPublished packages:"
+        for pkg in "${published_packages[@]}"; do
+            commit_msg="${commit_msg}\n  - ${pkg}"
+        done
+
+        git add .
+        echo -e "${commit_msg}" | git commit -F -
+        git push origin main
+
+        echo ""
+        echo "✅ Published ${#published_packages[@]} package(s) successfully!"
+        echo ""
+        echo "Packages published:"
+        for pkg in "${published_packages[@]}"; do
+            echo "  - ${pkg}"
+        done
+    fi
 
 # List all projects
 mcp:
