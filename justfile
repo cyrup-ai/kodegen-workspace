@@ -220,52 +220,12 @@ bump package_name bump_type="patch":
     echo "  ✓ Updated package version to $new_version"
     echo ""
 
-    # Convert package name from hyphen to underscore for dependency matching
-    # e.g., "kodegen-mcp-tool" -> "kodegen_mcp_tool"
-    dep_package_name=$(echo "$package_name" | tr '-' '_')
-
-    # Update all dependency references in other packages
-    echo "Updating dependency references to $dep_package_name..."
-
-    updated_count=0
-
-    # Find all Cargo.toml files in the workspace
-    for other_cargo in packages/*/Cargo.toml; do
-        # Skip the package we just updated
-        if [ "$other_cargo" = "$cargo_toml" ]; then
-            continue
-        fi
-
-        # Check if this Cargo.toml has a dependency on our package
-        if grep -q "^${dep_package_name} = " "$other_cargo" || \
-           grep -q "^[[:space:]]*${dep_package_name} = " "$other_cargo"; then
-
-            # Update the version in dependency lines
-            # Handles both:
-            #   kodegen_mcp_tool = { version = "0.3" }
-            #   kodegen_mcp_tool = { version = "0.3", path = "..." }
-            perl -i -pe "s/^(\\s*)${dep_package_name} = \\{ version = \"[^\"]*\"/\$1${dep_package_name} = { version = \"${new_dep_version}\"/" "$other_cargo"
-
-            echo "  ✓ Updated $(basename $(dirname $other_cargo))"
-            updated_count=$((updated_count + 1))
-        fi
-    done
-
-    echo ""
-    if [ $updated_count -eq 0 ]; then
-        echo "No dependent packages found."
-    else
-        echo "Updated $updated_count dependent package(s)."
-    fi
-
-    echo ""
     echo "✓ Version bump complete!"
     echo ""
     echo "Summary:"
     echo "  Package: $package_name"
     echo "  Old version: $current_version"
     echo "  New version: $new_version"
-    echo "  Dependent packages updated: $updated_count"
 
 # Convert workspace dependencies to local path dependencies (version + path)
 dep-local:
@@ -644,16 +604,29 @@ publish bump_type:
 
     changed_packages=()
 
-    for pkg_dir in packages/*; do
-        if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
-            pkg_name=$(basename "$pkg_dir")
-
-            # Check for changes using git status --porcelain
-            if [ -n "$(cd "$pkg_dir" && git status --porcelain 2>/dev/null)" ]; then
+    if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ]; then
+        # For major/minor: publish ALL packages
+        echo "  Bump type is ${bump_type} - publishing all packages"
+        for pkg_dir in packages/*; do
+            if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
+                pkg_name=$(basename "$pkg_dir")
                 changed_packages+=("$pkg_name")
             fi
-        fi
-    done
+        done
+    else
+        # For patch: only publish packages with changes
+        echo "  Bump type is ${bump_type} - detecting changed packages"
+        for pkg_dir in packages/*; do
+            if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
+                pkg_name=$(basename "$pkg_dir")
+                
+                # Check for changes using git status --porcelain
+                if [ -n "$(cd "$pkg_dir" && git status --porcelain 2>/dev/null)" ]; then
+                    changed_packages+=("$pkg_name")
+                fi
+            fi
+        done
+    fi
 
     if [ ${#changed_packages[@]} -eq 0 ]; then
         echo "No packages with changes found."
@@ -661,7 +634,7 @@ publish bump_type:
         exit 0
     fi
 
-    echo "Found ${#changed_packages[@]} package(s) with changes:"
+    echo "Found ${#changed_packages[@]} package(s) to publish:"
     for pkg in "${changed_packages[@]}"; do
         echo "  - $pkg"
     done
@@ -733,16 +706,6 @@ publish bump_type:
             # Get current version
             old_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 
-            # Commit any existing changes in this package BEFORE version bump
-            if [ -n "$(git status --porcelain .)" ]; then
-                echo "  Committing existing changes..."
-                cd ../..
-                git add .
-                git commit -m "feat: ${package} changes for v${old_version}"
-                git push origin main
-                cd "packages/${package}"
-            fi
-
             # Bump version
             cd ../..
             just bump "${package}" "${bump_type}"
@@ -751,20 +714,20 @@ publish bump_type:
             new_version=$(grep '^version = ' "packages/${package}/Cargo.toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
             echo "  Bumped version: ${old_version} → ${new_version}"
 
-            # Commit version bump changes (including dependency updates in other packages)
-            echo "  Committing version bump..."
-            git add .
-            git commit -m "chore: bump ${package} to v${new_version}"
-
-            # Create annotated git tag
-            git tag -a "${package}@${new_version}" -m "Release ${package} v${new_version}"
-
-            # Push commits and tag
-            git push origin main
-            git push origin "${package}@${new_version}"
-
-            # Navigate to package for publishing
+            # Update dependencies
             cd "packages/${package}"
+            echo "  Running cargo update..."
+            cargo update
+            echo "  ✓ Dependencies updated"
+
+            # Commit and tag inside submodule
+            echo "  Committing and tagging in submodule..."
+            git add .
+            git commit -m "v${new_version}"
+            git tag -a "v${new_version}" -m "Release v${new_version}"
+            git push origin main
+            git push --tags
+            echo "  ✓ Committed and tagged in submodule"
 
             # Publish to crates.io
             echo "  Publishing to crates.io..."
@@ -778,6 +741,43 @@ publish bump_type:
 
             cd ../..
 
+            # For major/minor: update dependent package references
+            if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ]; then
+                echo "  Updating dependent package references..."
+                
+                # Extract major.minor from new_version (e.g., "0.4.0" -> "0.4")
+                dep_version=$(echo "${new_version}" | cut -d. -f1-2)
+                
+                # Convert package name to dependency format (hyphen to underscore)
+                dep_package_name=$(echo "${package}" | tr '-' '_')
+                
+                # Update all Cargo.toml files that depend on this package
+                updated_count=0
+                for other_cargo in packages/*/Cargo.toml; do
+                    other_pkg=$(basename $(dirname "$other_cargo"))
+                    
+                    # Skip the package we just published
+                    if [ "$other_pkg" = "${package}" ]; then
+                        continue
+                    fi
+                    
+                    # Check if this package depends on the one we just published
+                    if grep -q "^${dep_package_name} = " "$other_cargo" || \
+                       grep -q "^[[:space:]]*${dep_package_name} = " "$other_cargo"; then
+                        
+                        # Update the version reference
+                        perl -i -pe "s/^(\\s*)${dep_package_name} = \\{ version = \"[^\"]*\"/\$1${dep_package_name} = { version = \"${dep_version}\"/" "$other_cargo"
+                        
+                        echo "    ✓ Updated ${other_pkg} to use ${dep_package_name} v${dep_version}"
+                        updated_count=$((updated_count + 1))
+                    fi
+                done
+                
+                if [ $updated_count -gt 0 ]; then
+                    echo "  Updated ${updated_count} dependent package(s)"
+                fi
+            fi
+
             echo "  ✓ Published ${package}@${new_version}"
             echo ""
 
@@ -785,21 +785,15 @@ publish bump_type:
         fi
     done
 
-    # Phase 4: Workspace commit
+    # Phase 4: Sync workspace after all publishes
     if [ ${#published_packages[@]} -gt 0 ]; then
-        echo "Creating workspace release commit..."
-
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-
-        # Build commit message
-        commit_msg="chore: release packages - ${timestamp}\n\nPublished packages:"
-        for pkg in "${published_packages[@]}"; do
-            commit_msg="${commit_msg}\n  - ${pkg}"
-        done
-
+        echo "Syncing workspace after publish..."
+        
+        # Always commit - submodule references have changed
         git add .
-        echo -e "${commit_msg}" | git commit -F -
+        git commit -m "chore: sync workspace after package releases"
         git push origin main
+        echo "  ✓ Workspace synced"
 
         echo ""
         echo "✅ Published ${#published_packages[@]} package(s) successfully!"
