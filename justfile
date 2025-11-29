@@ -736,11 +736,25 @@ publish bump_type:
             # Bump version
             cd ../..
             just bump "${package}" "${bump_type}"
-            cd "packages/${package}"
-
+            
             # Get new version
-            new_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+            new_version=$(grep '^version = ' "packages/${package}/Cargo.toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
             echo "  Bumped version: ${old_version} → ${new_version}"
+
+            # Commit version bump changes BEFORE publishing
+            echo "  Committing version bump..."
+            git add .
+            git commit -m "chore: bump ${package} to v${new_version}"
+
+            # Create annotated git tag
+            git tag -a "${package}@${new_version}" -m "Release ${package} v${new_version}"
+
+            # Push commits and tag
+            git push origin main
+            git push origin "${package}@${new_version}"
+
+            # Navigate to package for publishing
+            cd "packages/${package}"
 
             # Publish to crates.io
             echo "  Publishing to crates.io..."
@@ -751,17 +765,6 @@ publish bump_type:
                 cd ../..
                 exit 1
             fi
-
-            # Commit package changes
-            git add .
-            git commit -m "v${new_version}"
-
-            # Create annotated git tag
-            git tag -a "${package}@${new_version}" -m "Release ${package} v${new_version}"
-
-            # Push commits and tag
-            git push origin main
-            git push origin "${package}@${new_version}"
 
             cd ../..
 
