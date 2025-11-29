@@ -733,6 +733,16 @@ publish bump_type:
             # Get current version
             old_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 
+            # Commit any existing changes in this package BEFORE version bump
+            if [ -n "$(git status --porcelain .)" ]; then
+                echo "  Committing existing changes..."
+                cd ../..
+                git add .
+                git commit -m "feat: ${package} changes for v${old_version}"
+                git push origin main
+                cd "packages/${package}"
+            fi
+
             # Bump version
             cd ../..
             just bump "${package}" "${bump_type}"
@@ -741,7 +751,7 @@ publish bump_type:
             new_version=$(grep '^version = ' "packages/${package}/Cargo.toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
             echo "  Bumped version: ${old_version} → ${new_version}"
 
-            # Commit version bump changes BEFORE publishing
+            # Commit version bump changes (including dependency updates in other packages)
             echo "  Committing version bump..."
             git add .
             git commit -m "chore: bump ${package} to v${new_version}"
