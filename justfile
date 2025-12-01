@@ -35,6 +35,7 @@ check:
         "kodegen-tools-reasoner"
         "kodegen-tools-sequential-thinking"
         "kodegen-tools-terminal"
+        "kodegen-native-notify"
         "kodegen-utils"
         "kodegend"
     )
@@ -654,6 +655,7 @@ publish bump_type:
         "cylo"
         "kodegen-bundler-autoconfig"
         "kodegen-bundler-sign"
+        "kodegen-native-notify"
 
         # Level 1: Infrastructure layer
         "kodegen-mcp-tool"
@@ -844,3 +846,117 @@ mcp:
     @nohup sh -c 'cargo install kodegen_tools_terminal && kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
     @nohup sh -c 'cargo install kodegen_candle_agent && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
     @tail -F ./tmp/mcp/*.log
+
+# Yank all published versions matching a minor version (e.g., just yank 0.1)
+yank minor_version:
+    #!/usr/bin/env bash
+
+    minor_version="{{ minor_version }}"
+
+    # Validate minor version format
+    if ! [[ "$minor_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+        echo "Error: Invalid minor version format. Use X.Y (e.g., '0.1', '1.2')"
+        exit 1
+    fi
+
+    echo "========================================="
+    echo "Yanking all versions matching $minor_version.*"
+    echo "========================================="
+    echo ""
+
+    # Check for jq (required for JSON parsing)
+    if ! command -v jq &> /dev/null; then
+        echo "Error: jq is required but not installed."
+        echo "Install with: brew install jq (macOS) or apt-get install jq (Linux)"
+        exit 1
+    fi
+
+    # Discover packages
+    echo "Discovering packages..."
+    packages=()
+    for pkg_dir in packages/*; do
+        if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
+            pkg_name=$(grep '^name = ' "$pkg_dir/Cargo.toml" | head -1 | sed 's/name = "\(.*\)"/\1/')
+            packages+=("$pkg_name")
+        fi
+    done
+    echo "Found ${#packages[@]} packages"
+    echo ""
+
+    # Track statistics
+    total_yanked=0
+    total_skipped=0
+    failed_yanks=()
+
+    # Process each package
+    for crate_name in "${packages[@]}"; do
+        echo "Processing: $crate_name"
+
+        # Query crates.io for all versions
+        echo "  Querying crates.io..."
+        api_response=$(curl -s "https://crates.io/api/v1/crates/$crate_name")
+
+        if [ $? -ne 0 ] || [ -z "$api_response" ]; then
+            echo "  ⚠ Failed to query crates.io"
+            total_skipped=$((total_skipped + 1))
+            continue
+        fi
+
+        # Check if crate exists
+        if echo "$api_response" | jq -e '.errors' &> /dev/null; then
+            echo "  ⚠ Crate not published (not found on crates.io)"
+            total_skipped=$((total_skipped + 1))
+            continue
+        fi
+
+        # Extract versions matching minor version that are NOT already yanked
+        versions_to_yank=($(echo "$api_response" | jq -r '.versions[] | select(.yanked == false) | .num' | grep "^${minor_version}\." || true))
+
+        if [ ${#versions_to_yank[@]} -eq 0 ]; then
+            echo "  No versions matching $minor_version.*"
+            total_skipped=$((total_skipped + 1))
+            continue
+        fi
+
+        echo "  Found ${#versions_to_yank[@]} version(s) to yank: ${versions_to_yank[*]}"
+
+        # Yank each version
+        for i in "${!versions_to_yank[@]}"; do
+            version="${versions_to_yank[$i]}"
+            echo "  Yanking $crate_name@$version..."
+
+            if cargo yank --vers "$version" "$crate_name" 2>&1; then
+                echo "    ✓ Successfully yanked"
+                total_yanked=$((total_yanked + 1))
+            else
+                echo "    ✗ Failed to yank"
+                failed_yanks+=("$crate_name@$version")
+            fi
+
+            # Sleep 15 seconds between yanks (except after the last one)
+            if [ $i -lt $((${#versions_to_yank[@]} - 1)) ]; then
+                echo "    Waiting 15 seconds before next yank..."
+                sleep 15
+            fi
+        done
+
+        echo ""
+    done
+
+    # Summary
+    echo "========================================="
+    echo "Summary"
+    echo "========================================="
+    echo "Total packages processed: ${#packages[@]}"
+    echo "Total versions yanked: $total_yanked"
+    echo "Packages skipped: $total_skipped"
+
+    if [ ${#failed_yanks[@]} -gt 0 ]; then
+        echo ""
+        echo "Failed to yank (${#failed_yanks[@]}):"
+        printf '  %s\n' "${failed_yanks[@]}"
+        exit 1
+    else
+        echo ""
+        echo "All yanks completed successfully!"
+    fi
