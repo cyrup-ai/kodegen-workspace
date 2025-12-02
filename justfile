@@ -12,6 +12,7 @@ check:
     projects=(
         "cylo"
         "kodegen"
+        "kodegen-bash-shell"
         "kodegen-bundler-autoconfig"
         "kodegen-bundler-release"
         "kodegen-bundler-sign"
@@ -648,6 +649,7 @@ publish bump_type:
     # Hardcoded dependency order (topologically sorted)
     PUBLISH_ORDER=(
         # Level 0: Foundation (no internal dependencies)
+        "kodegen-bash-shell"
         "kodegen-config"
         "kodegen-mcp-schema"
         "kodegen-simd"

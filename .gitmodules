@@ -1,0 +1,6 @@
+[submodule "claude-plugin"]
+	path = claude-plugin
+	url = git@github.com:/cyrup-ai/kodegen-claude-plugin
+[submodule "kodegen.ai"]
+	path = kodegen.ai
+	url = git@github.com:/cyrup-ai/kodegen.ai
