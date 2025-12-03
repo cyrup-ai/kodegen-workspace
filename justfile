@@ -36,6 +36,7 @@ check:
         "kodegen-tools-reasoner"
         "kodegen-tools-sequential-thinking"
         "kodegen-tools-terminal"
+        "kodegen-native-permissions"
         "kodegen-native-notify"
         "kodegen-utils"
         "kodegend"
@@ -657,9 +658,10 @@ publish bump_type:
         "cylo"
         "kodegen-bundler-autoconfig"
         "kodegen-bundler-sign"
-        "kodegen-native-notify"
+        "kodegen-native-permissions"
 
-        # Level 1: Infrastructure layer
+        # Level 1: Infrastructure layer (depends on Level 0)
+        "kodegen-native-notify"
         "kodegen-mcp-tool"
         "kodegen-mcp-client"
         "kodegen-utils"
