@@ -20,7 +20,7 @@ check:
         "kodegen-claude-agent"
         "kodegen-mcp-client"
         "kodegen-mcp-schema"
-        "kodegen-mcp-tool"
+        "kodegen-mcp-schema-macros"
         "kodegen-server-http"
         "kodegen-simd"
         "kodegen-tools-browser"
@@ -622,7 +622,7 @@ publish bump_type:
         for pkg_dir in packages/*; do
             if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
                 pkg_name=$(basename "$pkg_dir")
-                
+
                 # Check for changes using git status --porcelain
                 if [ -n "$(cd "$pkg_dir" && git status --porcelain 2>/dev/null)" ]; then
                     changed_packages+=("$pkg_name")
@@ -652,6 +652,7 @@ publish bump_type:
         # Level 0: Foundation (no internal dependencies)
         "kodegen-bash-shell"
         "kodegen-config"
+        "kodegen-mcp-schema-macros"
         "kodegen-mcp-schema"
         "kodegen-simd"
         "kgls"
@@ -662,7 +663,6 @@ publish bump_type:
 
         # Level 1: Infrastructure layer (depends on Level 0)
         "kodegen-native-notify"
-        "kodegen-mcp-tool"
         "kodegen-mcp-client"
         "kodegen-utils"
         "kodegen-config-manager"
@@ -715,7 +715,7 @@ publish bump_type:
             # Bump version
             cd ../..
             just bump "${package}" "${bump_type}"
-            
+
             # Get new version
             new_version=$(grep '^version = ' "packages/${package}/Cargo.toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
             echo "  Bumped version: ${old_version} → ${new_version}"
@@ -750,35 +750,35 @@ publish bump_type:
             # For major/minor: update dependent package references
             if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ]; then
                 echo "  Updating dependent package references..."
-                
+
                 # Extract major.minor from new_version (e.g., "0.4.0" -> "0.4")
                 dep_version=$(echo "${new_version}" | cut -d. -f1-2)
-                
+
                 # Convert package name to dependency format (hyphen to underscore)
                 dep_package_name=$(echo "${package}" | tr '-' '_')
-                
+
                 # Update all Cargo.toml files that depend on this package
                 updated_count=0
                 for other_cargo in packages/*/Cargo.toml; do
                     other_pkg=$(basename $(dirname "$other_cargo"))
-                    
+
                     # Skip the package we just published
                     if [ "$other_pkg" = "${package}" ]; then
                         continue
                     fi
-                    
+
                     # Check if this package depends on the one we just published
                     if grep -q "^${dep_package_name} = " "$other_cargo" || \
                        grep -q "^[[:space:]]*${dep_package_name} = " "$other_cargo"; then
-                        
+
                         # Update the version reference
                         perl -i -pe "s/^(\\s*)${dep_package_name} = \\{ version = \"[^\"]*\"/\$1${dep_package_name} = { version = \"${dep_version}\"/" "$other_cargo"
-                        
+
                         echo "    ✓ Updated ${other_pkg} to use ${dep_package_name} v${dep_version}"
                         updated_count=$((updated_count + 1))
                     fi
                 done
-                
+
                 if [ $updated_count -gt 0 ]; then
                     echo "  Updated ${updated_count} dependent package(s)"
                 fi
@@ -794,7 +794,7 @@ publish bump_type:
     # Phase 4: Sync workspace after all publishes
     if [ ${#published_packages[@]} -gt 0 ]; then
         echo "Syncing workspace after publish..."
-        
+
         # Always commit - submodule references have changed
         git add .
         git commit -m "chore: sync workspace after package releases"
