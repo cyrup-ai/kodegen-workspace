@@ -1,0 +1,26 @@
+[package]
+name = "kodegen_mcp_schema_macros"
+version = "0.8.0"
+edition = "2024"
+description = "KODEGEN.ᴀɪ: Memory-efficient, Blazing-Fast, MCP tools for code generation agents."
+license = "Apache-2.0 OR MIT"
+authors = ["KODEGEN.ᴀɪ"]
+homepage = "https://kodegen.ai"
+repository = "https://github.com/cyrup-ai/kodegen-mcp-schema-macros"
+readme = "README.md"
+categories = ["development-tools", "command-line-utilities", "api-bindings"]
+keywords = [
+    "mcp",
+    "terminal",
+    "agent",
+    "filesystem",
+    "claude"
+]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
