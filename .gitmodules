@@ -4,3 +4,9 @@
 [submodule "kodegen.ai"]
 	path = kodegen.ai
 	url = git@github.com:/cyrup-ai/kodegen.ai
+[submodule "packages/cylo"]
+	path = packages/cylo
+	url = git@github.com:/cyrup-ai/cylo
+[submodule "packages/kgls"]
+	path = packages/kgls
+	url = git@github.com:/cyrup-ai/kgls
