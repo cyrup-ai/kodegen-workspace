@@ -38,7 +38,8 @@ check:
         "kodegen-tools-terminal"
         "kodegen-native-permissions"
         "kodegen-native-notify"
-        "kodegen-utils"
+        "kodegend-protocol-ipc"
+        "kodegend-client-ipc"
         "kodegend"
     )
 
@@ -660,13 +661,14 @@ publish bump_type:
         "kodegen-bundler-autoconfig"
         "kodegen-bundler-sign"
         "kodegen-native-permissions"
+        "kodegend-protocol-ipc"
 
         # Level 1: Infrastructure layer (depends on Level 0)
         "kodegen-native-notify"
         "kodegen-mcp-client"
-        "kodegen-utils"
         "kodegen-config-manager"
         "kodegen-server-http"
+        "kodegend-client-ipc"
 
         # Level 2: Individual tool packages
         "kodegen-tools-process"
