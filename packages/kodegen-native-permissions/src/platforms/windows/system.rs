@@ -13,10 +13,10 @@ use tokio::sync::oneshot;
 #[cfg(target_os = "windows")]
 use {
     windows::Graphics::Capture::GraphicsCaptureSession,
-    windows::Win32::Foundation::BOOL,
     windows::Win32::Security::{
-        CheckTokenMembership, CreateWellKnownSid, WinBuiltinAdministratorsSid,
+        CheckTokenMembership, CreateWellKnownSid, PSID, WinBuiltinAdministratorsSid,
     },
+    windows::core::BOOL,
     windows::Win32::UI::Input::{RAWINPUTDEVICE, RIDEV_INPUTSINK, RegisterRawInputDevices},
     windows::Win32::UI::WindowsAndMessaging::GetDesktopWindow,
     windows::core::Result as WinResult,
@@ -50,7 +50,7 @@ pub fn check_input_monitoring() -> Result<PermissionStatus, PermissionError> {
         // Windows desktop applications have broad input access by default
         // Check if we can register for raw input to verify capability
         unsafe {
-            let mut rid = RAWINPUTDEVICE {
+            let rid = RAWINPUTDEVICE {
                 usUsagePage: 0x01, // Generic Desktop
                 usUsage: 0x06,     // Keyboard
                 dwFlags: RIDEV_INPUTSINK,
@@ -59,7 +59,7 @@ pub fn check_input_monitoring() -> Result<PermissionStatus, PermissionError> {
 
             // Test if we can register for input monitoring
             let status = match RegisterRawInputDevices(
-                &mut [rid],
+                &[rid],
                 std::mem::size_of::<RAWINPUTDEVICE>() as u32,
             ) {
                 Ok(_) => PermissionStatus::Authorized,
@@ -79,16 +79,20 @@ pub fn check_admin_access() -> Result<PermissionStatus, PermissionError> {
         unsafe {
             let mut admin_group: [u8; 256] = [0; 256];
             let mut admin_group_size = admin_group.len() as u32;
+
+            // Wrap the buffer pointer with PSID newtype
+            let psid = PSID(admin_group.as_mut_ptr() as *mut _);
+
             if CreateWellKnownSid(
                 WinBuiltinAdministratorsSid,
                 None,
-                Some(&mut admin_group),
+                Some(psid),
                 &mut admin_group_size,
             )
             .is_ok()
             {
                 let mut is_member = BOOL(0);
-                if CheckTokenMembership(None, admin_group.as_ptr() as *mut _, &mut is_member)
+                if CheckTokenMembership(None, psid, &mut is_member)
                     .is_ok()
                 {
                     let status = if is_member.as_bool() {
@@ -140,7 +144,7 @@ pub fn request_input_monitoring(tx: oneshot::Sender<Result<PermissionStatus, Per
     {
         tokio::task::spawn_blocking(move || {
             let result = unsafe {
-                let mut rid = RAWINPUTDEVICE {
+                let rid = RAWINPUTDEVICE {
                     usUsagePage: 0x01, // Generic Desktop
                     usUsage: 0x06,     // Keyboard
                     dwFlags: RIDEV_INPUTSINK,
@@ -149,7 +153,7 @@ pub fn request_input_monitoring(tx: oneshot::Sender<Result<PermissionStatus, Per
 
                 // Test if we can register for input monitoring
                 match RegisterRawInputDevices(
-                    &mut [rid],
+                    &[rid],
                     std::mem::size_of::<RAWINPUTDEVICE>() as u32,
                 ) {
                     Ok(_) => Ok(PermissionStatus::Authorized),
@@ -191,16 +195,20 @@ pub fn request_admin_access(tx: oneshot::Sender<Result<PermissionStatus, Permiss
             // This uses well-known SID for built-in Administrators group
             let mut admin_group: [u8; 256] = [0; 256];
             let mut admin_group_size = admin_group.len() as u32;
+
+            // Wrap the buffer pointer with PSID newtype
+            let psid = PSID(admin_group.as_mut_ptr() as *mut _);
+
             if CreateWellKnownSid(
                 WinBuiltinAdministratorsSid,
                 None,
-                Some(&mut admin_group),
+                Some(psid),
                 &mut admin_group_size,
             )
             .is_ok()
             {
                 let mut is_member = BOOL(0);
-                if CheckTokenMembership(None, admin_group.as_ptr() as *mut _, &mut is_member)
+                if CheckTokenMembership(None, psid, &mut is_member)
                     .is_ok()
                 {
                     if is_member.as_bool() {

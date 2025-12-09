@@ -40,8 +40,8 @@ pub fn check_nearby_interaction() -> Result<PermissionStatus, PermissionError> {
 fn check_app_capability(capability_name: &str) -> Result<PermissionStatus, PermissionError> {
     #[cfg(target_os = "windows")]
     {
-        match AppCapability::CreateForCapabilityName(&capability_name.into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        match AppCapability::Create(&windows::core::HSTRING::from(capability_name)) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(_) => Ok(PermissionStatus::Denied),
             },
@@ -83,8 +83,8 @@ fn request_app_capability(
     #[cfg(target_os = "windows")]
     {
         let capability_name = capability_name.to_string();
-        let result = match AppCapability::CreateForCapabilityName(&capability_name.into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        let result = match AppCapability::Create(&windows::core::HSTRING::from(capability_name)) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(e) => Err(PermissionError::SystemError(format!(
                     "Windows Runtime operation failed: {}",

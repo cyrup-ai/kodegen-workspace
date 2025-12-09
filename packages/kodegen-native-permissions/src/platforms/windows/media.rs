@@ -17,8 +17,8 @@ use crate::types::{PermissionError, PermissionStatus, PermissionType};
 pub fn check_camera() -> Result<PermissionStatus, PermissionError> {
     #[cfg(target_os = "windows")]
     {
-        match AppCapability::CreateForCapabilityName(&"webcam".into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        match AppCapability::Create(&windows::core::HSTRING::from("webcam")) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(_) => Err(PermissionError::SystemError(
                     "Failed to get camera status".to_string(),
@@ -36,8 +36,8 @@ pub fn check_camera() -> Result<PermissionStatus, PermissionError> {
 pub fn check_microphone() -> Result<PermissionStatus, PermissionError> {
     #[cfg(target_os = "windows")]
     {
-        match AppCapability::CreateForCapabilityName(&"microphone".into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        match AppCapability::Create(&windows::core::HSTRING::from("microphone")) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(_) => Err(PermissionError::SystemError(
                     "Failed to get microphone status".to_string(),
@@ -55,8 +55,8 @@ pub fn check_microphone() -> Result<PermissionStatus, PermissionError> {
 pub fn check_speech_recognition() -> Result<PermissionStatus, PermissionError> {
     #[cfg(target_os = "windows")]
     {
-        match AppCapability::CreateForCapabilityName(&"microphone".into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        match AppCapability::Create(&windows::core::HSTRING::from("microphone")) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(_) => Err(PermissionError::SystemError(
                     "Failed to get speech recognition status".to_string(),
@@ -82,6 +82,7 @@ pub fn request_microphone(tx: oneshot::Sender<Result<PermissionStatus, Permissio
 fn request_media_capture(tx: oneshot::Sender<Result<PermissionStatus, PermissionError>>, media_type: &str) {
     #[cfg(target_os = "windows")]
     {
+        let media_type = media_type.to_string();
         tokio::task::spawn_blocking(move || {
             // Create single-threaded tokio runtime for !Send WinRT futures
             let rt = tokio::runtime::Builder::new_current_thread()
@@ -103,7 +104,7 @@ fn request_media_capture(tx: oneshot::Sender<Result<PermissionStatus, Permission
                 })?;
 
                 capture
-                    .InitializeAsync(&settings)
+                    .InitializeWithSettingsAsync(&settings)
                     .map_err(|e| {
                         PermissionError::SystemError(format!(
                             "Failed to initialize {media_type}: {e}"
@@ -171,7 +172,7 @@ pub fn request_speech_recognition(tx: oneshot::Sender<Result<PermissionStatus, P
                 })?;
 
                 capture
-                    .InitializeAsync(&settings)
+                    .InitializeWithSettingsAsync(&settings)
                     .map_err(|e| {
                         PermissionError::SystemError(format!(
                             "Failed to initialize speech capture: {}",

@@ -58,6 +58,8 @@ pub enum PermissionStatus {
     Denied,
     /// Permission is restricted by system policy
     Restricted,
+    /// User prompt required for elevation (UAC on Windows, sudo on Unix)
+    PromptRequired,
     /// Permission status is unknown
     Unknown,
 }
@@ -68,6 +70,7 @@ pub enum PermissionError {
     Denied,
     Restricted,
     SystemError(String),
+    PlatformError(String),
     Unknown,
     Cancelled,
 }
@@ -78,6 +81,7 @@ impl fmt::Display for PermissionError {
             Self::Denied => write!(f, "Permission denied"),
             Self::Restricted => write!(f, "Permission restricted"),
             Self::SystemError(s) => write!(f, "System error: {}", s),
+            Self::PlatformError(s) => write!(f, "Platform error: {}", s),
             Self::Unknown => write!(f, "Unknown error"),
             Self::Cancelled => write!(f, "Operation cancelled"),
         }
@@ -138,6 +142,7 @@ impl fmt::Display for PermissionStatus {
             Self::Authorized => write!(f, "Authorized"),
             Self::Denied => write!(f, "Denied"),
             Self::Restricted => write!(f, "Restricted"),
+            Self::PromptRequired => write!(f, "Prompt Required"),
             Self::Unknown => write!(f, "Unknown"),
         }
     }

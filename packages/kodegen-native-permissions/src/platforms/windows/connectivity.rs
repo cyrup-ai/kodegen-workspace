@@ -55,33 +55,26 @@ pub fn check_bluetooth() -> Result<PermissionStatus, PermissionError> {
             }
         }) {
             Ok(adapter) => {
-                // Check if adapter exists and has capability
-                match adapter {
-                    Some(adapter) => {
-                        // Check if Bluetooth Low Energy is supported as indicator of working
-                        // Bluetooth
-                        match adapter.IsLowEnergySupported() {
-                            Ok(supported) => {
-                                if supported {
-                                    PermissionStatus::Authorized
-                                } else {
-                                    // Classic Bluetooth fallback
-                                    match adapter.IsClassicSupported() {
-                                        Ok(classic_supported) => {
-                                            if classic_supported {
-                                                PermissionStatus::Authorized
-                                            } else {
-                                                PermissionStatus::Denied
-                                            }
-                                        },
-                                        Err(_) => PermissionStatus::Denied,
+                // Check if Bluetooth Low Energy is supported as indicator of working Bluetooth
+                match adapter.IsLowEnergySupported() {
+                    Ok(supported) => {
+                        if supported {
+                            PermissionStatus::Authorized
+                        } else {
+                            // Classic Bluetooth fallback
+                            match adapter.IsClassicSupported() {
+                                Ok(classic_supported) => {
+                                    if classic_supported {
+                                        PermissionStatus::Authorized
+                                    } else {
+                                        PermissionStatus::Denied
                                     }
-                                }
-                            },
-                            Err(_) => PermissionStatus::Denied,
+                                },
+                                Err(_) => PermissionStatus::Denied,
+                            }
                         }
                     },
-                    None => PermissionStatus::Denied,
+                    Err(_) => PermissionStatus::Denied,
                 }
             },
             Err(_) => PermissionStatus::Denied,
@@ -164,43 +157,34 @@ pub fn request_bluetooth(tx: oneshot::Sender<Result<PermissionStatus, Permission
                     Ok(future) => {
                         match future.await {
                             Ok(adapter) => {
-                                // Check if adapter exists and has capability (same as
-                                // check_permission)
-                                match adapter {
-                                    Some(adapter) => {
-                                        // Check if Bluetooth Low Energy is supported as indicator
-                                        // of working Bluetooth
-                                        match adapter.IsLowEnergySupported() {
-                                            Ok(supported) => {
-                                                if supported {
-                                                    Ok(PermissionStatus::Authorized)
-                                                } else {
-                                                    // Classic Bluetooth fallback
-                                                    match adapter.IsClassicSupported() {
-                                                        Ok(classic_supported) => {
-                                                            if classic_supported {
-                                                                Ok(PermissionStatus::Authorized)
-                                                            } else {
-                                                                Ok(PermissionStatus::Denied)
-                                                            }
-                                                        },
-                                                        Err(e) => Err(
-                                                            PermissionError::SystemError(format!(
-                                                                "Failed to check classic \
-                                                                 Bluetooth support: {}",
-                                                                e
-                                                            )),
-                                                        ),
+                                // Check if Bluetooth Low Energy is supported as indicator of working Bluetooth
+                                match adapter.IsLowEnergySupported() {
+                                    Ok(supported) => {
+                                        if supported {
+                                            Ok(PermissionStatus::Authorized)
+                                        } else {
+                                            // Classic Bluetooth fallback
+                                            match adapter.IsClassicSupported() {
+                                                Ok(classic_supported) => {
+                                                    if classic_supported {
+                                                        Ok(PermissionStatus::Authorized)
+                                                    } else {
+                                                        Ok(PermissionStatus::Denied)
                                                     }
-                                                }
-                                            },
-                                            Err(e) => Err(PermissionError::SystemError(format!(
-                                                "Failed to check Bluetooth LE support: {}",
-                                                e
-                                            ))),
+                                                },
+                                                Err(e) => Err(
+                                                    PermissionError::SystemError(format!(
+                                                        "Failed to check classic Bluetooth support: {}",
+                                                        e
+                                                    )),
+                                                ),
+                                            }
                                         }
                                     },
-                                    None => Ok(PermissionStatus::Denied),
+                                    Err(e) => Err(PermissionError::SystemError(format!(
+                                        "Failed to check Bluetooth LE support: {}",
+                                        e
+                                    ))),
                                 }
                             },
                             Err(e) => Err(PermissionError::SystemError(format!(

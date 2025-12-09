@@ -1,6 +1,6 @@
 [package]
 name = "kodegen_native_permissions"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2024"
 description = "KODEGEN.ᴀɪ: Memory-efficient, Blazing-Fast, MCP tools for code generation agents."
 authors = ["KODEGEN.ᴀɪ"]
@@ -30,7 +30,7 @@ tokio = { version = "1", features = [
 
 dashmap = "6"
 once_cell = "1"
-dirs = "5"
+dirs = "6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tokio-util = "0.7"
@@ -56,6 +56,7 @@ windows = { version = "0.62", features = [
     "Devices_Geolocation",
     "Security_Authorization_AppCapabilityAccess",
     "Devices_Bluetooth",
+    "Devices_WiFi",
     "Networking_Connectivity",
     "UI_UIAutomation",
     "Foundation",
@@ -66,9 +67,15 @@ windows = { version = "0.62", features = [
     "Win32_Security",
     "Win32_Foundation",
     "Win32_System_Com",
-    "Win32_System_Ole"
+    "Win32_System_Ole",
+    "Win32_System_WindowsProgramming",
+    "Win32_Media_DirectShow",
+    "Win32_Media_MediaFoundation",
+    "Win32_Media_Multimedia",
+    "Win32_Security_Authorization",
+    "Win32_System_SystemServices"
 ] }
-tauri-winrt-notification = "0.2"
+tauri-winrt-notification = "0.7"
 windows-version = "0.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]

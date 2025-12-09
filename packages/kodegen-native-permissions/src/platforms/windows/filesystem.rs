@@ -7,9 +7,8 @@ use {
     windows::Security::Authorization::AppCapabilityAccess::{
         AppCapability, AppCapabilityAccessStatus,
     },
-    windows::Win32::Storage::FileSystem::{
-        DRIVE_REMOTE, DRIVE_REMOVABLE, GetDriveTypeW, GetLogicalDrives,
-    },
+    windows::Win32::Storage::FileSystem::{GetDriveTypeW, GetLogicalDrives},
+    windows::Win32::System::WindowsProgramming::{DRIVE_REMOTE, DRIVE_REMOVABLE},
     windows::core::Result as WinResult,
 };
 
@@ -19,8 +18,8 @@ use crate::types::{PermissionError, PermissionStatus, PermissionType};
 pub fn check_documents() -> Result<PermissionStatus, PermissionError> {
     #[cfg(target_os = "windows")]
     {
-        match AppCapability::CreateForCapabilityName(&"documentsLibrary".into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        match AppCapability::Create(&windows::core::HSTRING::from("documentsLibrary")) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(_) => Ok(PermissionStatus::Denied),
             },
@@ -43,7 +42,7 @@ pub fn check_network_volumes() -> Result<PermissionStatus, PermissionError> {
                     let drive_letter = format!("{}:\\", (b'A' + i as u8) as char);
                     let drive_path: Vec<u16> = drive_letter.encode_utf16().chain(Some(0)).collect();
 
-                    if GetDriveTypeW(windows::core::PCWSTR(drive_path.as_ptr())) == DRIVE_REMOTE.0 {
+                    if GetDriveTypeW(windows::core::PCWSTR(drive_path.as_ptr())) == DRIVE_REMOTE {
                         has_network_drive = true;
                         break;
                     }
@@ -75,7 +74,7 @@ pub fn check_removable_volumes() -> Result<PermissionStatus, PermissionError> {
                     let drive_path: Vec<u16> = drive_letter.encode_utf16().chain(Some(0)).collect();
 
                     if GetDriveTypeW(windows::core::PCWSTR(drive_path.as_ptr()))
-                        == DRIVE_REMOVABLE.0
+                        == DRIVE_REMOVABLE
                     {
                         has_removable_drive = true;
                         break;
@@ -98,8 +97,8 @@ pub fn check_removable_volumes() -> Result<PermissionStatus, PermissionError> {
 pub fn request_documents(tx: oneshot::Sender<Result<PermissionStatus, PermissionError>>) {
     #[cfg(target_os = "windows")]
     {
-        let result = match AppCapability::CreateForCapabilityName(&"documentsLibrary".into()) {
-            Ok(capability) => match capability.AccessStatus() {
+        let result = match AppCapability::Create(&windows::core::HSTRING::from("documentsLibrary")) {
+            Ok(capability) => match capability.CheckAccess() {
                 Ok(status) => Ok(convert_app_capability_status(status)),
                 Err(e) => Err(PermissionError::SystemError(format!(
                     "Windows Runtime operation failed: {}",
@@ -134,7 +133,7 @@ pub fn request_network_volumes(tx: oneshot::Sender<Result<PermissionStatus, Perm
                             drive_letter.encode_utf16().chain(Some(0)).collect();
 
                         if GetDriveTypeW(windows::core::PCWSTR(drive_path.as_ptr()))
-                            == DRIVE_REMOTE.0
+                            == DRIVE_REMOTE
                         {
                             has_network_drive = true;
                             break;
@@ -172,7 +171,7 @@ pub fn request_removable_volumes(tx: oneshot::Sender<Result<PermissionStatus, Pe
                             drive_letter.encode_utf16().chain(Some(0)).collect();
 
                         if GetDriveTypeW(windows::core::PCWSTR(drive_path.as_ptr()))
-                            == DRIVE_REMOVABLE.0
+                            == DRIVE_REMOVABLE
                         {
                             has_removable_drive = true;
                             break;

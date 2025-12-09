@@ -102,9 +102,10 @@ pub fn check_permission() -> Result<PermissionStatus, PermissionError> {
             
             // Try to create Toast with configured AUMID
             let result = with_com(|| {
-                Toast::new(&app_id)
-                    .map(|_| PermissionStatus::Authorized)
-                    .map_err(|e| PermissionError::PlatformError(format!("Toast creation failed: {:?}", e)))
+                match Toast::new(&app_id) {
+                    Ok(_) => Ok(PermissionStatus::Authorized),
+                    Err(e) => Err(PermissionError::PlatformError(format!("Toast creation failed: {:?}", e)))
+                }
             });
             
             match result {
@@ -114,9 +115,10 @@ pub fn check_permission() -> Result<PermissionStatus, PermissionError> {
                     // This ensures functionality even if the configured AUMID is invalid
                     if app_id != FALLBACK_APP_ID {
                         with_com(|| {
-                            Toast::new(FALLBACK_APP_ID)
-                                .map(|_| PermissionStatus::Authorized)
-                                .map_err(|_| PermissionError::PlatformError("Fallback Toast creation failed".to_string()))
+                            match Toast::new(FALLBACK_APP_ID) {
+                                Ok(_) => Ok(PermissionStatus::Authorized),
+                                Err(_) => Err(PermissionError::PlatformError("Fallback Toast creation failed".to_string()))
+                            }
                         }).unwrap_or(PermissionStatus::Denied)
                     } else {
                         PermissionStatus::Denied
