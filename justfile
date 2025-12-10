@@ -575,10 +575,10 @@ publish bump_type:
 
     # Validate bump type
     case "$bump_type" in
-        major|minor|patch) ;;
+        major|minor|patch|patch-all) ;;
         *)
             echo "Error: Invalid bump_type '$bump_type'"
-            echo "Usage: just publish [major|minor|patch]"
+            echo "Usage: just publish [major|minor|patch|patch-all]"
             exit 1
             ;;
     esac
@@ -608,8 +608,8 @@ publish bump_type:
 
     changed_packages=()
 
-    if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ]; then
-        # For major/minor: publish ALL packages
+    if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ] || [ "${bump_type}" = "patch-all" ]; then
+        # For major/minor/patch-all: publish ALL packages
         echo "  Bump type is ${bump_type} - publishing all packages"
         for pkg_dir in packages/*; do
             if [ -d "$pkg_dir" ] && [ -f "$pkg_dir/Cargo.toml" ]; then
@@ -714,9 +714,15 @@ publish bump_type:
             # Get current version
             old_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 
+            # Determine actual bump type for versioning (patch-all -> patch)
+            actual_bump_type="${bump_type}"
+            if [ "${bump_type}" = "patch-all" ]; then
+                actual_bump_type="patch"
+            fi
+
             # Bump version
             cd ../..
-            just bump "${package}" "${bump_type}"
+            just bump "${package}" "${actual_bump_type}"
 
             # Get new version
             new_version=$(grep '^version = ' "packages/${package}/Cargo.toml" | head -1 | sed 's/version = "\(.*\)"/\1/')
@@ -750,7 +756,7 @@ publish bump_type:
             cd ../..
 
             # For major/minor: update dependent package references
-            if [ "${bump_type}" = "major" ] || [ "${bump_type}" = "minor" ]; then
+            if [ "${actual_bump_type}" = "major" ] || [ "${actual_bump_type}" = "minor" ]; then
                 echo "  Updating dependent package references..."
 
                 # Extract major.minor from new_version (e.g., "0.4.0" -> "0.4")
