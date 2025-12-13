@@ -145,6 +145,36 @@ list-projects:
     @echo "Rust projects in workspace:"
     @find . -maxdepth 2 -name "Cargo.toml" -not -path "*/target/*" | sed 's|./||' | sed 's|/Cargo.toml||' | sort
 
+# Build candle-agent with platform-appropriate GPU features
+build-candle:
+    #!/usr/bin/env bash
+    cd packages/kodegen-candle-agent
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Building with Metal GPU support for macOS..."
+        cargo build --features metal
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] && [[ "$(uname -m)" == "x86_64" ]]; then
+        echo "Building with CUDA GPU support for Linux x86_64..."
+        cargo build --features cuda
+    else
+        echo "Building with CPU-only support..."
+        cargo build
+    fi
+
+# Run candle examples with platform-appropriate GPU features
+run-candle-example example_name:
+    #!/usr/bin/env bash
+    cd packages/kodegen-candle-agent
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Running example with Metal GPU support..."
+        cargo run --example {{example_name}} --features metal
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] && [[ "$(uname -m)" == "x86_64" ]]; then
+        echo "Running example with CUDA GPU support..."
+        cargo run --example {{example_name}} --features cuda
+    else
+        echo "Running example with CPU-only support..."
+        cargo run --example {{example_name}}
+    fi
+
 # Bump package version and update all workspace dependency references
 bump package_name bump_type="patch":
     #!/usr/bin/env bash
@@ -856,7 +886,14 @@ mcp:
     @nohup sh -c 'cargo install kodegen_tools_reasoner && kodegen-reasoner --http 127.0.0.1:30449' > ./tmp/mcp/kodegen-reasoner.log 2>&1 &
     @nohup sh -c 'cargo install kodegen_tools_sequential_thinking && kodegen-sequential-thinking --http 127.0.0.1:30450' > ./tmp/mcp/kodegen-sequential-thinking.log 2>&1 &
     @nohup sh -c 'cargo install kodegen_tools_terminal && kodegen-terminal --http 127.0.0.1:30451' > ./tmp/mcp/kodegen-terminal.log 2>&1 &
-    @nohup sh -c 'cargo install kodegen_candle_agent && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
+    @nohup sh -c ' \
+        if [[ "$$OSTYPE" == "darwin"* ]]; then \
+            cargo install kodegen_candle_agent --features metal; \
+        elif [[ "$$OSTYPE" == "linux-gnu"* ]] && [[ "$$(uname -m)" == "x86_64" ]]; then \
+            cargo install kodegen_candle_agent --features cuda; \
+        else \
+            cargo install kodegen_candle_agent; \
+        fi && kodegen-candle-agent --http 127.0.0.1:30452' > ./tmp/mcp/kodegen-candle-agent.log 2>&1 &
     @tail -F ./tmp/mcp/*.log
 
 # Yank all published versions matching a minor version (e.g., just yank 0.1)
